@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Middleware;
+/**
+ * 后台token验证中间件
+ */
 
 use App\Http\Admin\V1\Exceptions\TokenException;
 use Closure;
@@ -8,7 +11,7 @@ use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 
-class RefreshToken extends BaseMiddleware
+class JWTVerification extends BaseMiddleware
 {
 
 

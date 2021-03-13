@@ -14,7 +14,7 @@ if ( !function_exists('TestWriteLog')) {
 
             foreach ($data as $key => $value) {
 
-                fwrite($log_file, date('Y-m-d H:i:s').': '.$key.'---'.$value.PHP_EOL);
+                fwrite($log_file, date('Y-m-d H:i:s').': '.$key.' => '.$value.PHP_EOL);
             }
         }
         else {
@@ -99,6 +99,7 @@ if ( !function_exists('transformToken')) {
     }
 
 }
+
 
 /**
  * 组装微信login地址

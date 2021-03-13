@@ -31,11 +31,11 @@ class Kernel extends HttpKernel
     protected $middlewareGroups = [
         //后台登录中间件
         'admin'  => [
-            \App\Http\Middleware\RefreshToken::class,
+            \App\Http\Middleware\JWTVerification::class,
         ],
         //小程序登录中间件
         'wechat' => [
-            \App\Http\Middleware\WechatToken::class,
+            \App\Http\Middleware\WechatTokenVerification::class,
         ],
     ];
 

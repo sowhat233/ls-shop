@@ -180,7 +180,7 @@ class TokenService
 
         if ( !$header_token) {
 
-            $header_token = Request::header(config('wechat.token_key'));
+            $header_token = Request::header(config('wechat.token_name'));
         }
 
         $token = Cache::get($header_token, null);

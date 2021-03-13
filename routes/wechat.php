@@ -6,14 +6,16 @@
 
 Route::group([], function () {
 
-    //token登录
-    Route::get('/token/user', 'TokenController@getToken')->name('token.getToken');
-
+    //获取token
+    Route::post('/token/user', 'TokenController@getToken')->name('token.getToken');
 
 });
 
 
 Route::group(['middleware' => 'wechat',], function () {
+
+    //test
+    Route::get('/token/test', 'TokenController@test')->name('token.test');
 
 });
 

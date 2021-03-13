@@ -2,11 +2,8 @@
 
 namespace App\Exceptions;
 
-use App\Http\Controllers\ApiController;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 

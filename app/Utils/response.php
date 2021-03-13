@@ -29,7 +29,7 @@ function responseJsonAsDeleted($data = null,$message = 'deleted success',  $ext_
 }
 
 /**
- * 表单验证错误使用 400
+ * 表单验证错误 422
  *
  * @param string $message
  * @param array $data
@@ -38,12 +38,12 @@ function responseJsonAsDeleted($data = null,$message = 'deleted success',  $ext_
  */
 function responseJsonAsBadRequest($message = 'bad request', $data = [], $ext_fields = [])
 {
-    return responseJson($data, $message, FoundationResponse::HTTP_BAD_REQUEST, $ext_fields);
+    return responseJson($data, $message, FoundationResponse::HTTP_UNPROCESSABLE_ENTITY, $ext_fields);
 }
 
 
 /**
- * 身份验证失败。 401
+ * 身份验证失败 401
  *
  * @param string $message
  * @param array $data
@@ -57,7 +57,7 @@ function responseJsonAsUnAuthorized($message = 'un authorized', $data = [], $ext
 
 
 /**
- * 用户身份过期, 需重新登录。 402
+ * 用户身份过期, 需重新登录 402
  *
  * @param string $message
  * @param array $data

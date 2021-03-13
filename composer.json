@@ -15,6 +15,7 @@
     "hhxsv5/laravel-s": "~3.7.0",
     "laravel/framework": "^7.29",
     "laravel/tinker": "^2.5",
+    "predis/predis": "^1.1",
     "tymon/jwt-auth": "dev-develop",
     "yurunsoft/pay-sdk": "~2.0"
   },
