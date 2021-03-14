@@ -171,6 +171,7 @@ class TokenService
 
     }
 
+
     /**
      * @param bool $header_token
      * @return mixed

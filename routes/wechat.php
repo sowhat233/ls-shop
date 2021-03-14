@@ -14,8 +14,6 @@ Route::group([], function () {
 
 Route::group(['middleware' => 'wechat',], function () {
 
-    //test
-    Route::get('/token/test', 'TokenController@test')->name('token.test');
 
 });
 

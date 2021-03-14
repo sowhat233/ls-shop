@@ -27,9 +27,4 @@ class TokenController extends ApiController
     }
 
 
-    function test()
-    {
-        return 1111;
-    }
-
 }

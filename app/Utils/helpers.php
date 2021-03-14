@@ -27,6 +27,7 @@ if ( !function_exists('TestWriteLog')) {
 
     }
 }
+
 /**
  * 随机生成字符串
  */

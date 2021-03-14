@@ -15,10 +15,13 @@ class CategoriesRepository extends BaseRepository implements notFoundExceptionIn
         $this->model = $category;
     }
 
-
+    /**
+     * @return mixed|void
+     * @throws CategoriesException
+     */
     public function notFoundException()
     {
-        throw new CategoriesException('该分类不存在!',$this->not_found_code);
+        throw new CategoriesException('该分类不存在!', $this->not_found_code);
     }
 
     /**
@@ -44,6 +47,7 @@ class CategoriesRepository extends BaseRepository implements notFoundExceptionIn
         return $this->model->where($where)->select($column)->orderBy($order, $sort)->paginate();
     }
 
+
     /**
      * @param $id
      * @param array $column
@@ -53,22 +57,6 @@ class CategoriesRepository extends BaseRepository implements notFoundExceptionIn
     public function findCategoryById($id, $column = ['*'], $with = [])
     {
         return $this->findOneOrFail($id, $this, $column, $with);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function findParentCategory()
-    {
-        return $this->model->parent;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function findChildren()
-    {
-        return $this->model->children;
     }
 
 

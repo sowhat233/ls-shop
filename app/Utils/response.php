@@ -84,7 +84,7 @@ function responseJsonAsForbidden($message = 'forbidden', $data = [], $ext_fields
 
 
 /**
- * 未找到使用 404
+ * 未找到 404
  *
  * @param string $message
  * @param array $data
@@ -112,7 +112,7 @@ function responseJsonAsServerError($message = 'server error', $data = [], $ext_f
 
 
 /**
- * 正常状态使用 200
+ * 正常状态 200
  *
  * @param array $data
  * @param int $code

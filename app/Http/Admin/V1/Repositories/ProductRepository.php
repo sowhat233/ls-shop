@@ -18,10 +18,15 @@ class ProductRepository extends BaseRepository implements notFoundExceptionInter
     }
 
 
+    /**
+     * @return mixed|void
+     * @throws ProductException
+     */
     public function notFoundException()
     {
         throw new ProductException('该商品不存在!', $this->not_found_code);
     }
+
 
     /**
      * @param array $where
@@ -54,6 +59,7 @@ class ProductRepository extends BaseRepository implements notFoundExceptionInter
         return $product_list;
     }
 
+
     /**
      * @param $id
      * @param array $column
@@ -66,6 +72,7 @@ class ProductRepository extends BaseRepository implements notFoundExceptionInter
         return $this->findOneOrFail($id, $this, $column, $with);
 
     }
+
 
     /**
      * @param $category_id

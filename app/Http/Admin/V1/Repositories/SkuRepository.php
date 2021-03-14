@@ -26,14 +26,5 @@ class SkuRepository extends BaseRepository
         return $this->model->orderBy($order, $sort)->get();
     }
 
-    /**
-     * @return bool|null
-     * @throws \Exception
-     */
-    public function deleteProduct()
-    {
-        return $this->model->delete();
-    }
-
 
 }

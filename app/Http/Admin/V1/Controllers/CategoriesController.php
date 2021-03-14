@@ -25,6 +25,7 @@ class CategoriesController extends ApiController
         return CategoriesResource::collection($categoriesService->getCategoriesPaginate($request->all()));
     }
 
+
     /**
      * @param $id
      * @param CategoriesRepository $categoriesRepo
