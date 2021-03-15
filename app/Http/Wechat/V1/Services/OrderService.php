@@ -103,9 +103,11 @@ class OrderService
 
                 }
 
-                // 待处理 差个生成订单
 
             }
+
+            // 待处理 差个生成订单
+
 
             DB::commit();
 
