@@ -13,7 +13,7 @@ class TokenRequest extends BaseFormRequest
     public function rules()
     {
         $rules = [
-            'code' => 'required',
+            'code' => ['required'],
         ];
 
         return $rules;

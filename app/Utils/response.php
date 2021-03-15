@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response as FoundationResponse;
  * @param array $ext_fields
  * @return \Illuminate\Http\JsonResponse
  */
-function responseJsonAsCreated($data = [], $message = 'created success', $ext_fields = [])
+function responseJsonAsCreated($message = 'created success', $data = [], $ext_fields = [])
 {
     return responseJson($data, $message, FoundationResponse::HTTP_CREATED, $ext_fields);
 }
@@ -23,7 +23,7 @@ function responseJsonAsCreated($data = [], $message = 'created success', $ext_fi
  * @param array $ext_fields
  * @return \Illuminate\Http\JsonResponse
  */
-function responseJsonAsDeleted($data = null,$message = 'deleted success',  $ext_fields = [])
+function responseJsonAsDeleted($data = null, $message = 'deleted success', $ext_fields = [])
 {
     return responseJson($data, $message, FoundationResponse::HTTP_NO_CONTENT, $ext_fields);
 }

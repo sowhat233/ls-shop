@@ -14,6 +14,8 @@ Route::group([], function () {
 
 Route::group(['middleware' => 'wechat',], function () {
 
+    //下单
+    Route::post('/order', 'OrderController@placeOrder')->name('order.placeOrder');
 
 });
 

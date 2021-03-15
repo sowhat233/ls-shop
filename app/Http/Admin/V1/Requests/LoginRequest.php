@@ -13,8 +13,8 @@ class LoginRequest extends BaseFormRequest
     public function rules()
     {
         $rules = [
-            'username' => 'required|between:2,20',
-            'password' => 'required|alpha_dash|min:6',
+            'username' => ['required', 'between:2,20'],
+            'password' => ['required', 'alpha_dash', 'min:6'],
         ];
 
         return $rules;

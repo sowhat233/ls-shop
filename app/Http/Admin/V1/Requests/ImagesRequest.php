@@ -12,7 +12,7 @@ class ImagesRequest extends BaseFormRequest
     {
 
         $rules = [
-            'images' => 'required',
+            'images' => ['required'],
         ];
 
         return $rules;

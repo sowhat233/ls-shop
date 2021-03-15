@@ -13,8 +13,8 @@ class CategoriesRequest extends BaseFormRequest
     public function rules()
     {
         $rules = [
-            'name'        => 'required|between:2,20',
-            'description' => 'max:200',
+            'name'        => ['required', 'between:2,20'],
+            'description' => ['max:200'],
         ];
 
         return $rules;
@@ -25,9 +25,9 @@ class CategoriesRequest extends BaseFormRequest
     {
 
         $message = [
-            'name.required'    => '分类名称不能为空',
-            'name.between'     => '分类名称必须介于 2 - 20 个字符之间。',
-            'name.description' => '分类描述不能超过 200 个字符',
+            'name.required' => '分类名称不能为空',
+            'name.between'  => '分类名称必须介于 2 - 20 个字符之间。',
+            'description'   => '分类描述不能超过 200 个字符',
         ];
 
         return $message;
