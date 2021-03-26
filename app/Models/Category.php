@@ -8,7 +8,7 @@ use App\Http\Base\BaseModel;
 
 class Category extends BaseModel
 {
-    protected $table = 'categories';
+    protected $table = 'category';
 
     public $timestamps = false;
 

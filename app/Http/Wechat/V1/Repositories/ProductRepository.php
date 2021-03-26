@@ -18,6 +18,14 @@ class ProductRepository extends BaseRepository implements notFoundExceptionInter
     }
 
 
+    public function scopeStatus()
+    {
+        $where[] = ['status', 1];
+
+        return $where;
+    }
+
+
     /**
      * @return mixed|void
      * @throws ProductException
@@ -36,7 +44,7 @@ class ProductRepository extends BaseRepository implements notFoundExceptionInter
     public function getProductsByIdsWithSku($ids, $column = ['*'])
     {
 
-        return $this->model->whereIn('id', $ids)->with('sku')->select($column)->get();
+        return $this->model->whereIn('id', $ids)->where($this->scopeStatus())->with('sku')->select($column)->get();
 
     }
 
@@ -49,7 +57,7 @@ class ProductRepository extends BaseRepository implements notFoundExceptionInter
      */
     public function decreaseStock($id, $amount)
     {
-        return $this->where('id', $id)->where('stock', '>=', $amount)->decrement('stock', $amount);
+        return $this->where('id', $id)->where($this->scopeStatus())->where('stock', '>=', $amount)->decrement('stock', $amount);
     }
 
 }

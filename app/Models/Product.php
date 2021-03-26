@@ -9,7 +9,7 @@ use App\Http\Base\BaseModel;
 class Product extends BaseModel
 {
 
-    protected $table = 'products';
+    protected $table = 'product';
 
     public $timestamps = false;
 
