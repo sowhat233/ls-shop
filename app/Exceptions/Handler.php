@@ -2,8 +2,13 @@
 
 namespace App\Exceptions;
 
+use App\Http\Admin\V1\Exceptions\TokenException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 
@@ -29,12 +34,8 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Report or log an exception.
-     *
-     * @param \Throwable $exception
-     * @return void
-     *
-     * @throws \Exception
+     * @param Throwable $exception
+     * @throws Throwable
      */
     public function report(Throwable $exception)
     {
@@ -42,18 +43,55 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Render an exception into an HTTP response.
-     *
      * @param \Illuminate\Http\Request $request
-     * @param \Throwable $exception
-     * @return \Symfony\Component\HttpFoundation\Response
-     *
-     * @throws \Throwable
+     * @param Throwable $exception
+     * @return \Illuminate\Http\JsonResponse|FoundationResponse
      */
     public function render($request, Throwable $exception)
     {
+        $error               = $this->convertExceptionToResponse($exception);
+        $response['message'] = '服务器内部错误';
 
-        return parent::render($request, $exception);
+        //401 token相关
+        if ($exception instanceof TokenException) {
+
+            $response['message'] = $exception->getMessage();
+
+            return response()->json($response, FoundationResponse::HTTP_UNAUTHORIZED);
+        }
+        //404 资源不存在
+        else if ($exception instanceof NotFoundHttpException) {
+
+            $response['message'] = '资源不存在!';
+
+            return response()->json($response, FoundationResponse::HTTP_NOT_FOUND);
+        }
+        //403 禁止访问
+        else if ($exception instanceof HttpException && $exception->getStatusCode() === FoundationResponse::HTTP_FORBIDDEN) {
+
+            $response['message'] = '禁止访问!';
+
+            return response()->json($response, FoundationResponse::HTTP_FORBIDDEN);
+
+        }
+        //422 表单验证失败
+        else if ($exception instanceof ValidationException) {
+
+            $response['message'] = $exception->validator->getMessageBag()->first();
+
+            return response()->json($response, FoundationResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+        else {
+
+            if (config('app.debug')) {
+
+                $response['message'] = empty($exception->getMessage()) ? 'getMessage居然获取不到!' : $exception->getMessage();
+            }
+
+        }
+
+        return response()->json($response, $error->getStatusCode());
+
     }
 
 

@@ -8,9 +8,15 @@ use Symfony\Component\HttpFoundation\Response as FoundationResponse;
 class ProductException extends BaseException
 {
 
-    public function __construct($message = "", $code = FoundationResponse::HTTP_INTERNAL_SERVER_ERROR, $previous = null)
+    /**
+     * ProductException constructor.
+     * @param string $message
+     * @param bool $e
+     * @param int $code
+     */
+    public function __construct($message = "", $e = false, $code = FoundationResponse::HTTP_INTERNAL_SERVER_ERROR)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($this->handleErrorMessage($message, $e), $code);
     }
 
 }

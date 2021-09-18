@@ -4,10 +4,10 @@ namespace App\Http\Wechat\V1\Repositories;
 
 use App\Http\Wechat\V1\Exceptions\ProductException;
 use App\Http\Base\BaseRepository;
-use App\Interfaces\notFoundExceptionInterface;
+use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\Product;
 
-class ProductRepository extends BaseRepository implements notFoundExceptionInterface
+class ProductRepository extends BaseRepository implements NotFoundExceptionInterface
 {
 
     protected $model;
@@ -32,7 +32,7 @@ class ProductRepository extends BaseRepository implements notFoundExceptionInter
      */
     public function notFoundException()
     {
-        throw new ProductException('该商品不存在!', $this->not_found_code);
+        throw new ProductException('该商品不存在!', $this->httpNotFound);
     }
 
 

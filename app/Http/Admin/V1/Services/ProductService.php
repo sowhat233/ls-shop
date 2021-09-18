@@ -26,22 +26,31 @@ class ProductService
      * @param $params
      * @return mixed
      * @throws ProductException
+     * @throws \Throwable
      */
     public function createProduct($params)
     {
 
-        $insert_product = $this->getProductInsertData($params['product_info'], $params['product_sku']);
+        $product_info = $params['product_info'];
+        $product_sku  = $params['product_sku'];
+
+        $insert_product = $this->getProductInsertData($product_info, $product_sku);
 
         //开启事务
         DB::beginTransaction();
 
         try {
 
+            //添加product数据
             $product = $this->productRepo->create($insert_product);
 
-            $product_sku = $this->getProductSkuInsertData($params['product_sku']['sku_list'], $product->id);
+            //如果启用多规格
+            if ($product_info['multiple_spec'] == ProductEnums::MultipleSpec) {
 
-            $this->skuRepo->insert($product_sku);
+                //添加sku数据
+                $this->skuRepo->insert($this->getProductSkuInsertData($product_sku['sku_list'], $product->id));
+
+            }
 
             DB::commit();
 
@@ -51,7 +60,7 @@ class ProductService
 
             DB::rollBack();
 
-            throw new ProductException('添加失败!');
+            throw new ProductException('产品添加失败!', $e);
 
         }
 
@@ -63,7 +72,7 @@ class ProductService
      * @param array $column
      * @return mixed
      */
-    public function getProductList($params, $column = ['id', 'name', 'sale_status', 'sales', 'category_id', 'price', 'is_enable_spec', 'stock'])
+    public function getProductList($params, $column = ['id', 'name', 'sale_status', 'sales', 'category_id', 'price', 'multiple_spec', 'stock'])
     {
 
         $where = $this->handleProductIndexParams($params);
@@ -136,6 +145,23 @@ class ProductService
     }
 
     /**
+     * @param $sku_list
+     * @return float|int
+     */
+    private function getAllSkuStock($sku_list)
+    {
+
+        $stock_arr = [];
+
+        foreach ($sku_list as $key => $value) {
+
+            $stock_arr[] = $value['stock'];
+        }
+
+        return array_sum($stock_arr);
+    }
+
+    /**
      * @param $info
      * @param $sku
      * @return mixed
@@ -143,24 +169,20 @@ class ProductService
     private function getProductInsertData($info, $sku)
     {
 
-        //如果启用多规格
-        if ($sku['is_enable_spec'] == ProductEnums::EnableSpec) {
+        //如果是多规格
+        if ($info['multiple_spec'] == ProductEnums::MultipleSpec) {
 
-            //启用多规格 price就是sku的最低价格
-            $price = $this->getSkuLowestPrice($sku['sku_list']);
-
-            $product['is_enable_spec'] = ProductEnums::EnableSpec;
-            $product['stock']          = 0; //启用多规格 这个库存就不处理了
-            $product['price']          = $price; //sku最低价格
-            $product['spec_items']    = json_encode($sku['spec_list'], true); //参数列表
+            $product['stock'] = $this->getAllSkuStock($sku['sku_list']);; //启用多规格 这个库存就是所有sku的总库存
+            $product['price']      = $this->getSkuLowestPrice($sku['sku_list']);//启用多规格 price就是sku的最低价格
+            $product['spec_items'] = json_encode($sku['spec_items'], true); //参数列表
 
         }
         else {
 
-            $product['is_enable_spec'] = ProductEnums::NotEnableSpec;
-            $product['stock']          = $sku['stock']; //库存
-            $product['price']          = $sku['price'];
-            $product['spec_items']    = null; //不启用多规格 这个参数为null
+            $product['multiple_spec'] = ProductEnums::SingleSpec;
+            $product['stock']            = $info['stock']; //库存
+            $product['price']            = $info['price'];
+            $product['spec_items']       = null; //不启用多规格 这个参数为null
 
         }
 
@@ -213,8 +235,6 @@ class ProductService
     private function getSkuLowestPrice($sku_list)
     {
 
-        //此处用collect处理会简洁些
-
         $price_arr = [];
 
         foreach ($sku_list as $key => $value) {
@@ -242,7 +262,7 @@ class ProductService
             $value['key'] = $value['id'];
 
             //如果启用了多规格
-            if ($value['is_enable_spec'] == ProductEnums::EnableSpec) {
+            if ($value['multiple_spec'] == ProductEnums::MultipleSpec) {
 
                 //启用多规格的情况下 库存和销量都是拿所有sku的总和
 

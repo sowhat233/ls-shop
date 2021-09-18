@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface notFoundExceptionInterface
+interface NotFoundExceptionInterface
 {
     /**
      * @return mixed

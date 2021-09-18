@@ -4,10 +4,10 @@ namespace App\Http\Wechat\V1\Repositories;
 
 use App\Http\Wechat\V1\Exceptions\UserException;
 use App\Http\Base\BaseRepository;
-use App\Interfaces\notFoundExceptionInterface;
+use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\User;
 
-class UserRepository extends BaseRepository implements notFoundExceptionInterface
+class UserRepository extends BaseRepository implements NotFoundExceptionInterface
 {
 
     public function __construct(User $user)
@@ -18,7 +18,7 @@ class UserRepository extends BaseRepository implements notFoundExceptionInterfac
 
     public function notFoundException()
     {
-        throw new UserException('该用户不存在!', $this->not_found_code);
+        throw new UserException('该用户不存在!', $this->httpNotFound);
     }
 
     /**

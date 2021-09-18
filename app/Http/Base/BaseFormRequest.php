@@ -19,11 +19,11 @@ class BaseFormRequest extends FormRequest
     }
 
 
-    //重写父类方法 实现json返回
-    public function failedValidation(Validator $validator)
-    {
-        throw (new HttpResponseException(
-            responseJsonAsBadRequest($validator->errors()->first())
-        ));
-    }
+    //重写父类方法 统一返回200格式 目前用不上
+//    public function failedValidation(Validator $validator)
+//    {
+//        throw (new HttpResponseException(
+//            responseJsonAsBadRequest($validator->errors()->first())
+//        ));
+//    }
 }

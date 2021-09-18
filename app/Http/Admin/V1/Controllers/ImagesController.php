@@ -21,7 +21,7 @@ class ImagesController extends ApiController
 
         $result = $uploader->save($request->images);
 
-        return responseJsonAsCreated($result, '上传成功!');
+        return responseJsonAsCreated('上传成功!', $result);
 
     }
 

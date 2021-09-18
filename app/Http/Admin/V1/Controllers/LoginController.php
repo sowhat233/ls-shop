@@ -3,10 +3,8 @@
 namespace App\Http\Admin\V1\Controllers;
 
 
-use App\Http\Admin\V1\Repositories\ProductRepository;
 use App\Http\Admin\V1\Requests\LoginRequest;
 use App\Http\Controllers\ApiController;
-use App\Models\Product;
 
 class LoginController extends ApiController
 {
@@ -29,7 +27,7 @@ class LoginController extends ApiController
         $data = [
             'access_token' => $token,
             'token_type'   => 'Bearer',
-            'expires_in'   => auth('api')->factory()->getTTL()*60,
+            'expires_in'   => config('jwt.ttl')*60,//jwt以分钟为单位 这里乘以60 使其变成秒单位
         ];
 
         return responseJson($data);

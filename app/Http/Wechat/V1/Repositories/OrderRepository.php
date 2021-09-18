@@ -4,10 +4,10 @@ namespace App\Http\Wechat\V1\Repositories;
 
 use App\Http\Wechat\V1\Exceptions\ProductException;
 use App\Http\Base\BaseRepository;
-use App\Interfaces\notFoundExceptionInterface;
+use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\Order;
 
-class OrderRepository extends BaseRepository implements notFoundExceptionInterface
+class OrderRepository extends BaseRepository implements NotFoundExceptionInterface
 {
 
     protected $model;
@@ -24,7 +24,7 @@ class OrderRepository extends BaseRepository implements notFoundExceptionInterfa
      */
     public function notFoundException()
     {
-        throw new ProductException('该订单不存在!', $this->not_found_code);
+        throw new ProductException('该订单不存在!', $this->httpNotFound);
     }
 
 
@@ -32,7 +32,7 @@ class OrderRepository extends BaseRepository implements notFoundExceptionInterfa
      * @param $order_no
      * @return mixed
      */
-    public function orderNoExists($order_no)
+    public function orderNotExists($order_no)
     {
         return $this->where('no', $order_no)->exists();
     }

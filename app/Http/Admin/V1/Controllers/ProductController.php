@@ -4,15 +4,15 @@
 namespace App\Http\Admin\V1\Controllers;
 
 
-use App\Http\Admin\V1\Repositories\CategoriesRepository;
+use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Requests\ProductRequest;
-use App\Http\Admin\V1\Resources\CategoriesResource;
+use App\Http\Admin\V1\Resources\CategoryResource;
 use App\Http\Admin\V1\Resources\ProductResource;
 use App\Http\Admin\V1\Services\ProductService;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 
-class ProductsController extends ApiController
+class ProductController extends ApiController
 {
 
     /**
@@ -45,24 +45,25 @@ class ProductsController extends ApiController
      * @param ProductService $productService
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Http\Admin\V1\Exceptions\ProductException
+     * @throws \Throwable
      */
     public function store(ProductRequest $request, ProductService $productService)
     {
 
-        $result = $productService->createProduct($request->only(['product_info', 'product_sku']));
+//        $result = $productService->createProduct($request->only(['product_info', 'product_sku']));
 
-        return responseJsonAsCreated($result);
+        return responseJsonAsCreated($result = []);
 
     }
 
 
     /**
-     * @param CategoriesRepository $categoryRepo
+     * @param CategoryRepository $categoryRepo
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function categoriesList(CategoriesRepository $categoryRepo)
+    public function categoryList(CategoryRepository $categoryRepo)
     {
-        return CategoriesResource::collection($categoryRepo->getCategoriesList(['id', 'name']));
+        return CategoryResource::collection($categoryRepo->getCategoryList(['id', 'name']));
     }
 
 
@@ -70,6 +71,7 @@ class ProductsController extends ApiController
      * @param Request $request
      * @param ProductService $productService
      * @return \Illuminate\Http\JsonResponse
+     * @throws \App\Http\Admin\V1\Exceptions\ProductException
      */
     public function changeStatus(Request $request, ProductService $productService)
     {

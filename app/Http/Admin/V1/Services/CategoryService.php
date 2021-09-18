@@ -4,33 +4,33 @@
 namespace App\Http\Admin\V1\Services;
 
 
-use App\Http\Admin\V1\Repositories\CategoriesRepository;
+use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Repositories\ProductRepository;
 use DB;
 
-class CategoriesService
+class CategoryService
 {
 
-    private $categoriesRepo;
+    private $categoryRepo;
     private $productRepo;
 
 
-    public function __construct(CategoriesRepository $categoriesRepository, ProductRepository $productRepository)
+    public function __construct(CategoryRepository $categoryRepository, ProductRepository $productRepository)
     {
-        $this->categoriesRepo = $categoriesRepository;
-        $this->productRepo    = $productRepository;
+        $this->categoryRepo = $categoryRepository;
+        $this->productRepo  = $productRepository;
     }
 
     /**
      * @param $params
      * @return mixed
      */
-    public function getCategoriesPaginate($params)
+    public function getCategoryPaginate($params)
     {
 
-        $where = $this->handleCategoriesIndexParams($params);
+        $where = $this->handlecategoryIndexParams($params);
 
-        return $this->categoriesRepo->getCategoriesPaginate($where);
+        return $this->categoryRepo->getCategoryPaginate($where);
 
     }
 
@@ -38,7 +38,7 @@ class CategoriesService
      * @param $params
      * @return array
      */
-    public function handleCategoriesIndexParams($params)
+    public function handleCategoryIndexParams($params)
     {
 
         $where = [];
@@ -56,11 +56,12 @@ class CategoriesService
 
     /**
      * @param $id
+     * @throws \Throwable
      */
     public function deleteCategory($id)
     {
 
-        $category = $this->categoriesRepo->findCategoryById($id);
+        $category = $this->categoryRepo->findCategoryById($id);
 
         //开启事务
         DB::beginTransaction();

@@ -55,7 +55,7 @@ class OrderService
 
 
     /**
-     * 根据订单里的id获取产品
+     * 根据前台提交的订单里的id获取产品
      * @param $selected_products
      * @return mixed
      */
@@ -189,7 +189,7 @@ class OrderService
             $order_no = $prefix.str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
             // 判断是否已经存在 不存在则返回
-            if ( !$this->orderRepo->orderNoExists($order_no)) {
+            if ( !$this->orderRepo->orderNotExists($order_no)) {
 
                 return $order_no;
 

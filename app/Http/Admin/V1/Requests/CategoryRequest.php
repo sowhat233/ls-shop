@@ -6,7 +6,7 @@ namespace App\Http\Admin\V1\Requests;
 
 use App\Http\Base\BaseFormRequest;
 
-class CategoriesRequest extends BaseFormRequest
+class CategoryRequest extends BaseFormRequest
 {
 
 

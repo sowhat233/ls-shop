@@ -24,6 +24,7 @@ class ImagesUploadService
 
         // 如果上传图片的后缀不符合 抛出异常
         if ( !in_array($extension, $this->allowed_ext)) {
+
             throw new ImgException('图片不符合规则!');
         }
 

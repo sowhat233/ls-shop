@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Validators\CostPriceValidator;
+use App\Http\Validators\SkuCostPriceValidator;
 use DB;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +23,29 @@ class AppServiceProvider extends ServiceProvider
 
 
     /**
+     * @var array
+     * 自定义验证
+     * 这个数组的key不能是驼峰法
+     */
+    protected $validators = [
+        //单规格商品 进货价 对比 售价
+        'cost_price'     => CostPriceValidator::class,
+        'sku_cost_price' => SkuCostPriceValidator::class,
+    ];
+
+
+    /**
+     * 注册自定义验证
+     */
+    protected function registerValidators()
+    {
+        foreach ($this->validators as $rule => $validator) {
+            Validator::extend($rule, "{$validator}@validate");
+        }
+    }
+
+
+    /**
      * Bootstrap any application services.
      *
      * @return void
@@ -26,7 +53,21 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
 
-        //sql日志记录  如果为调试模式 则会记录并将日志写入到storage\logs文件夹里
+        //注册自定义验证 详见 https://learnku.com/articles/35283
+        $this->registerValidators();
+
+        //sql debug
+        $this->sqlDebugLog();
+
+    }
+
+
+    /**
+     * sql日志记录  如果为调试模式 则会记录并将日志写入到storage\logs文件夹里
+     */
+    public function sqlDebugLog()
+    {
+
         if (env('APP_DEBUG')) {
 
             DB::listen(
@@ -68,10 +109,6 @@ class AppServiceProvider extends ServiceProvider
 
 
         }
-
-
     }
-
-
 
 }

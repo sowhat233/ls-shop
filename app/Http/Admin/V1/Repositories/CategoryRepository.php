@@ -2,14 +2,22 @@
 
 namespace App\Http\Admin\V1\Repositories;
 
-use App\Http\Admin\V1\Exceptions\CategoriesException;
+use App\Http\Admin\V1\Exceptions\CategoryException;
 use App\Http\Base\BaseRepository;
-use App\Interfaces\notFoundExceptionInterface;
+use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\Category;
 
-class CategoriesRepository extends BaseRepository implements notFoundExceptionInterface
+/**
+ * Class CategoryRepository
+ * @package App\Http\Admin\V1\Repositories
+ */
+class CategoryRepository extends BaseRepository implements NotFoundExceptionInterface
 {
 
+    /**
+     * CategoryRepository constructor.
+     * @param Category $category
+     */
     public function __construct(Category $category)
     {
         $this->model = $category;
@@ -17,11 +25,11 @@ class CategoriesRepository extends BaseRepository implements notFoundExceptionIn
 
     /**
      * @return mixed|void
-     * @throws CategoriesException
+     * @throws CategoryException
      */
     public function notFoundException()
     {
-        throw new CategoriesException('该分类不存在!', $this->not_found_code);
+        throw new CategoryException('该分类不存在!', $this->httpNotFound);
     }
 
     /**
@@ -30,7 +38,7 @@ class CategoriesRepository extends BaseRepository implements notFoundExceptionIn
      * @param string $sort
      * @return mixed
      */
-    public function getCategoriesList($column = ['*'], $order = 'id', $sort = 'desc')
+    public function getCategoryList($column = ['*'], $order = 'id', $sort = 'desc')
     {
         return $this->model->select($column)->orderBy($order, $sort)->get();
     }
@@ -42,7 +50,7 @@ class CategoriesRepository extends BaseRepository implements notFoundExceptionIn
      * @param string $sort
      * @return mixed
      */
-    public function getCategoriesPaginate($where = [], $column = ['*'], $order = 'id', $sort = 'desc')
+    public function getCategoryPaginate($where = [], $column = ['*'], $order = 'id', $sort = 'desc')
     {
         return $this->model->where($where)->select($column)->orderBy($order, $sort)->paginate();
     }
@@ -52,7 +60,7 @@ class CategoriesRepository extends BaseRepository implements notFoundExceptionIn
      * @param $id
      * @param array $column
      * @param array $with
-     * @return CategoriesRepository|CategoriesRepository[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model
      */
     public function findCategoryById($id, $column = ['*'], $with = [])
     {

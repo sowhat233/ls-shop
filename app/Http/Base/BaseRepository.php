@@ -12,7 +12,7 @@ class BaseRepository
 
     protected $model;
 
-    protected $not_found_code = FoundationResponse::HTTP_NOT_FOUND;
+    protected $httpNotFound = FoundationResponse::HTTP_NOT_FOUND;
 
 
     public function __construct(BaseModel $model)

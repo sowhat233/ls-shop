@@ -8,14 +8,13 @@ namespace App\Enums;
 class ProductEnums
 {
 
-    const EnableSpec = 1; //启用多规格
+    const MultipleSpec = 1; //多规格
 
-    const NotEnableSpec = 0; //不启用多规格
+    const SingleSpec = 0; //单规格
 
     const on_sale = 1; //上架
 
     const not_on_sale = 0; //下架
-
 
     //商品状态文字数组 用于转化为文字
     const ProductStatusName = [
