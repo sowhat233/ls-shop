@@ -1,5 +1,21 @@
 <?php
 
+
+if ( !function_exists('logDebug')) {
+
+    /**
+     * @param $message
+     * @return string|null
+     */
+    function logDebug($message)
+    {
+
+        \Illuminate\Support\Facades\Log::debug($message);
+
+    }
+
+}
+
 /**
  * 随机生成字符串
  */

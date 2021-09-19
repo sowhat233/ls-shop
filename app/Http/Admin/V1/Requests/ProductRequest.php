@@ -12,15 +12,15 @@ class ProductRequest extends BaseFormRequest
 
     private $rules = [
 
-        'product_info'               => ['bail', 'required', 'array'],
-        'product_info.category_id'   => ['bail', 'required', 'integer'],
-        'product_info.name'          => ['bail', 'required', 'between:2,200'],
-        'product_info.description'   => ['bail', 'required', 'between:1,255'],
-        'product_info.carousels'     => ['bail', 'required', 'array', 'between:1,5'],
-        'product_info.image'         => ['bail', 'required', 'max:255'],
-        'product_info.sale_status'   => ['bail', 'required', 'integer'],
-        'product_info.multiple_spec' => ['bail', 'required', 'integer'],
-        'product_info.detail'        => ['bail', 'required'],
+        'product_info'                  => ['bail', 'required', 'array'],
+        'product_info.category_id'      => ['bail', 'required', 'integer'],
+        'product_info.name'             => ['bail', 'required', 'between:2,200'],
+        'product_info.description'      => ['bail', 'required', 'between:1,255'],
+        'product_info.carousels'        => ['bail', 'required', 'array', 'between:1,5'],
+        'product_info.image'            => ['bail', 'required', 'max:255'],
+        'product_info.is_launched'      => ['bail', 'required', 'integer'],
+        'product_info.is_multiple_spec' => ['bail', 'required', 'integer'],
+        'product_info.detail'           => ['bail', 'required'],
 
     ];
 
@@ -47,16 +47,16 @@ class ProductRequest extends BaseFormRequest
     public function rules()
     {
 
-        if ($this->input('product_info.multiple_spec') == ProductEnums::SingleSpec) {
+        if ($this->input('product_info.is_multiple_spec') == ProductEnums::IsMultipleSpec) {
 
-            //如果是单规格 添加单规格验证
-            $this->rules = array_merge($this->rules, $this->singSpecRules);
+            //如果是多规格验证规则 添加多规格验证规则
+            $this->rules = array_merge($this->rules, $this->multipleSpecRules);
 
         }
         else {
 
-            //添加多规格验证规则
-            $this->rules = array_merge($this->rules, $this->multipleSpecRules);
+            //添加单规格验证
+            $this->rules = array_merge($this->rules, $this->singSpecRules);
 
         }
 
@@ -82,8 +82,8 @@ class ProductRequest extends BaseFormRequest
             'product_info.carousels.between'                   => '商品轮播图数量在 1 到 5 张图片之间',
             'product_info.image.required'                      => '商品主图没上传',
             'product_info.image.max'                           => '商品主图长度不能超过255个字符',
-            'product_info.sale_status.required'                => '请选择商品状态',
-            'product_info.sale_status.integer'                 => '商品状态的格式不正确',
+            'product_info.is_launched.required'                => '请选择商品状态',
+            'product_info.is_launched.integer'                 => '商品状态的格式不正确',
             'product_info.stock.required'                      => '商品的库存不能为空',
             'product_info.stock.integer'                       => '商品的库存必须是整数',
             'product_info.stock.min'                           => '商品的库存不能小于1',
@@ -94,8 +94,8 @@ class ProductRequest extends BaseFormRequest
             'product_info.cost_price.numeric'                  => '商品的进价必须是数字',
             'product_info.cost_price.cost_price'               => '商品的进价不能大于等于售价',
             'product_info.cost_price.min'                      => '商品的进价不能小于0.00',
-            'product_info.multiple_spec.required'              => 'sku规格类型不能为空',
-            'product_info.multiple_spec.integer'               => 'sku规格类型的格式不正确',
+            'product_info.is_multiple_spec.required'           => 'sku规格类型不能为空',
+            'product_info.is_multiple_spec.integer'            => 'sku规格类型的格式不正确',
             'product_sku.required'                             => 'sku不能为空',
             'product_sku.array'                                => 'sku的格式不正确',
             'product_sku.spec_items.required'                  => '规格列表不能为空',

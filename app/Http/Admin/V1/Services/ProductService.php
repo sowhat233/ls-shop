@@ -44,8 +44,8 @@ class ProductService
             //添加product数据
             $product = $this->productRepo->create($insert_product);
 
-            //如果启用多规格
-            if ($product_info['multiple_spec'] == ProductEnums::MultipleSpec) {
+            //如果是多规格
+            if ($product_info['is_multiple_spec'] == ProductEnums::IsMultipleSpec) {
 
                 //添加sku数据
                 $this->skuRepo->insert($this->getProductSkuInsertData($product_sku['sku_list'], $product->id));
@@ -72,14 +72,12 @@ class ProductService
      * @param array $column
      * @return mixed
      */
-    public function getProductList($params, $column = ['id', 'name', 'sale_status', 'sales', 'category_id', 'price', 'multiple_spec', 'stock'])
+    public function getProductList($params, $column = ['id', 'name', 'is_launched', 'sales', 'category_id', 'price', 'cost_price', 'is_multiple_spec', 'stock'])
     {
 
-        $where = $this->handleProductIndexParams($params);
+        $product_list = $this->productRepo->getProductPaginate($this->handleProductIndexParams($params), $column)->toArray();;
 
-        $data = $this->productRepo->getProductPaginate($where, $column);
-
-        return $this->assemblyProductList($data);
+        return $this->assemblyProductList($product_list);
 
     }
 
@@ -127,38 +125,22 @@ class ProductService
     {
 
         $data['category_name'] = $data['category']['name'];
-        $data['status_name']   = ProductEnums::ProductStatusName[$data['sale_status']];
+        $data['status_name']   = ProductEnums::ProductStatusName[$data['is_launched']];
         $data['carousels']     = explode(',', $data['carousels']);
         $data['attrs_title']   = array_keys(json_decode($data['spec_items'], true));
-
 
         if ($data['sku'] !== null) {
 
             foreach ($data['sku'] as $key => $value) {
+
                 $value['attrs'] = json_decode($value['attrs'], true);
+
             }
 
         }
 
 
         return $data;
-    }
-
-    /**
-     * @param $sku_list
-     * @return float|int
-     */
-    private function getAllSkuStock($sku_list)
-    {
-
-        $stock_arr = [];
-
-        foreach ($sku_list as $key => $value) {
-
-            $stock_arr[] = $value['stock'];
-        }
-
-        return array_sum($stock_arr);
     }
 
     /**
@@ -170,19 +152,21 @@ class ProductService
     {
 
         //如果是多规格
-        if ($info['multiple_spec'] == ProductEnums::MultipleSpec) {
+        if ($info['is_multiple_spec'] == ProductEnums::IsMultipleSpec) {
 
-            $product['stock'] = $this->getAllSkuStock($sku['sku_list']);; //启用多规格 这个库存就是所有sku的总库存
-            $product['price']      = $this->getSkuLowestPrice($sku['sku_list']);//启用多规格 price就是sku的最低价格
+            $product['stock']      = 0; //多规格情况下 库存暂定为0
+            $product['price']      = $this->getSkuLowestPrice($sku['sku_list']);//多规格情况下 price就是sku的最低价格
+            $product['cost_price'] = 0; //多规格情况下 进价暂定为0.00
             $product['spec_items'] = json_encode($sku['spec_items'], true); //参数列表
 
         }
         else {
 
-            $product['multiple_spec'] = ProductEnums::SingleSpec;
+            $product['is_multiple_spec'] = ProductEnums::NotMultipleSpec;
             $product['stock']            = $info['stock']; //库存
-            $product['price']            = $info['price'];
-            $product['spec_items']       = null; //不启用多规格 这个参数为null
+            $product['price']            = $info['price'];//售价
+            $product['cost_price']       = $info['cost_price'];//进价
+            $product['spec_items']       = null; //单规格 这个参数为null
 
         }
 
@@ -192,7 +176,7 @@ class ProductService
         $product['image']       = $info['image']; //主图
         $product['description'] = $info['description']; //简介
         $product['detail']      = $info['detail']; //详情
-        $product['sale_status'] = $info['sale_status']; //是否上架
+        $product['is_launched'] = $info['is_launched']; //是否上架
         $product['carousels']   = implode(',', $info['carousels']); //轮播图
         $product['sales']       = 0; //销量
         $product['comments']    = 0; //评论量
@@ -253,36 +237,29 @@ class ProductService
     private function assemblyProductList($product_list)
     {
 
-        foreach ($product_list as $key => $value) {
+        foreach ($product_list['data'] as $key => &$value) {
 
             $category_name = $value['category']['category_name'];
 
             $value['category_name'] = $category_name;
 
-            $value['key'] = $value['id'];
+            $value['type'] = ProductEnums::ProductTypeName[$value['is_multiple_spec']];
 
-            //如果启用了多规格
-            if ($value['multiple_spec'] == ProductEnums::MultipleSpec) {
+            //如果是多规格
+            if ($value['is_multiple_spec'] == ProductEnums::IsMultipleSpec) {
 
-                //启用多规格的情况下 库存和销量都是拿所有sku的总和
+                //多规格的情况下 库存和销量都是拿所有sku的总和
+                $value['stock'] = $this->getSkuSTotalBy($value['sku'], 'stock');
 
-                $sku_list = $value['sku'];
+                $value['sales'] = $this->getSkuSTotalBy($value['sku'], 'sales');
 
-                $value['stock'] = $this->getSkuSTotalBy($sku_list, 'stock');
+                foreach ($value['sku'] as $k => $sku) {
 
-                $value['sales'] = $this->getSkuSTotalBy($sku_list, 'sales');
-
-                foreach ($sku_list as $k => $sku) {
-
-                    $sku['key'] = $value['id'].'-'.++$k;
-
-                    //json转字符串
-                    $sku['name'] = $this->transformAttrs($sku['attrs']);
-
-                    //分类名称
-                    $sku['category_name'] = $category_name;
+                    //规格属性名
+                    $value['sku'][$k]['attrs_name'] = $this->transformAttrs($sku['attrs']);
 
                 }
+
 
             }
 
@@ -316,6 +293,7 @@ class ProductService
     /**
      * @param $attrs
      * @return string
+     * json转字符串
      */
     private function transformAttrs($attrs)
     {
@@ -348,17 +326,14 @@ class ProductService
      * @param $product_id
      * @return ProductRepository|ProductRepository[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model
      * @throws ProductException
+     * @throws \App\Http\Common\CommonException
      */
     public function changeStatus($product_id)
     {
 
         $product = $this->productRepo->findProductById($product_id);
 
-        $this->checkSaleRequirement($product);
-
-        $new_sale_status = $this->getNewSaleStatus($product['sale_status']);
-
-        $this->productRepo->updat($product_id, ['sale_status' => $new_sale_status]);
+        $this->productRepo->update($product_id, ['is_launched' => $this->getNewSaleStatus($product['is_launched'])]);
 
         return $this->productRepo->findProductById($product_id);
 
@@ -371,13 +346,13 @@ class ProductService
     private function getNewSaleStatus($sale_status)
     {
 
-        $new_sale_status = ProductEnums::on_sale;
+        $new_sale_status = ProductEnums::IsLaunched;
 
         //如果是上架状态
-        if ($sale_status === ProductEnums::on_sale) {
+        if ($sale_status == ProductEnums::IsLaunched) {
 
             //改成下架
-            $new_sale_status = ProductEnums::not_on_sale;
+            $new_sale_status = ProductEnums::NotLaunched;
 
         }
 
@@ -385,20 +360,5 @@ class ProductService
 
     }
 
-    /**
-     * @param $product
-     * @throws ProductException
-     */
-    private function checkSaleRequirement($product)
-    {
-
-        //检查分类是否设置
-        if ($product['category_id'] === null) {
-
-            throw new ProductException('分类未设置,无法上架！');
-
-        }
-
-    }
 
 }

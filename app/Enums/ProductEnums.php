@@ -8,19 +8,27 @@ namespace App\Enums;
 class ProductEnums
 {
 
-    const MultipleSpec = 1; //多规格
+    const IsMultipleSpec = 1; //多规格
 
-    const SingleSpec = 0; //单规格
+    const NotMultipleSpec = 0; //单规格
 
-    const on_sale = 1; //上架
+    const IsLaunched = 1; //上架
 
-    const not_on_sale = 0; //下架
+    const NotLaunched = 0; //下架
 
     //商品状态文字数组 用于转化为文字
     const ProductStatusName = [
 
-        self::on_sale     => '上架',
-        self::not_on_sale => '下架',
+        self::IsLaunched  => '上架',
+        self::NotLaunched => '下架',
+
+    ];
+
+    //商品规格文字数组 用于转化为文字
+    const ProductTypeName = [
+
+        self::IsMultipleSpec  => '多规格',
+        self::NotMultipleSpec => '单规格',
 
     ];
 

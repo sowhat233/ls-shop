@@ -7,7 +7,6 @@ namespace App\Http\Admin\V1\Controllers;
 use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Requests\ProductRequest;
 use App\Http\Admin\V1\Resources\CategoryResource;
-use App\Http\Admin\V1\Resources\ProductResource;
 use App\Http\Admin\V1\Services\ProductService;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
@@ -18,11 +17,11 @@ class ProductController extends ApiController
     /**
      * @param Request $request
      * @param ProductService $productService
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request, ProductService $productService)
     {
-        return ProductResource::collection($productService->getProductList($request->all()));
+        return responseJson($productService->getProductList($request->all()));
     }
 
 
@@ -36,7 +35,7 @@ class ProductController extends ApiController
 
         $product = $productService->productShow($id);
 
-        return response()->json($product);
+        return responseJson($product);
     }
 
 
@@ -50,9 +49,9 @@ class ProductController extends ApiController
     public function store(ProductRequest $request, ProductService $productService)
     {
 
-//        $result = $productService->createProduct($request->only(['product_info', 'product_sku']));
+        $result = $productService->createProduct($request->only(['product_info', 'product_sku']));
 
-        return responseJsonAsCreated($result = []);
+        return responseJsonAsCreated($result);
 
     }
 
@@ -72,11 +71,12 @@ class ProductController extends ApiController
      * @param ProductService $productService
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Http\Admin\V1\Exceptions\ProductException
+     * @throws \App\Http\Common\CommonException
      */
     public function changeStatus(Request $request, ProductService $productService)
     {
 
-        $result = $productService->changeStatus($request->only('id'));
+        $result = $productService->changeStatus($request->input('id'));
 
         return responseJsonAsDeleted($result, '修改成功！');
     }

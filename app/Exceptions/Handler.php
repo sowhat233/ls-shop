@@ -4,7 +4,6 @@ namespace App\Exceptions;
 
 use App\Http\Admin\V1\Exceptions\TokenException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
