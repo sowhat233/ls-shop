@@ -1,137 +1,154 @@
 <?php
 
 namespace App\Traits;
-/**
- * 封装返回的统一消息 目前用不上
- */
 
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
-use Response;
 
-trait ApiResponse
+/**
+ * 封装响应返回
+ * Trait ApiResponse
+ * @package App\Common\traits
+ *
+ */
+trait  ApiResponse
 {
-    /**
-     * @var int
-     */
-    protected $statusCode = FoundationResponse::HTTP_OK;
+
+    protected $code = FoundationResponse::HTTP_OK;
+
+    protected $message = 'ok';
+
+    protected $data = [];
+
+    protected $expand = [];
+
 
     /**
-     * @return mixed
-     */
-    public function getStatusCode()
-    {
-        return $this->statusCode;
-    }
-
-    /**
-     * @param $statusCode
+     * @param $code
      * @return $this
      */
-    public function setStatusCode($statusCode)
+    public function setCode($code)
     {
-
-        $this->statusCode = $statusCode;
+        $this->code = $code;
         return $this;
     }
 
-    /**
-     * @param $data
-     * @param array $header
-     * @return mixed
-     */
-    public function respond($data, $header = [])
-    {
 
-        return Response::json($data, $this->getStatusCode(), $header);
+    /**
+     * @param $message
+     * @return $this
+     */
+    public function setMessage($message)
+    {
+        $this->message = $message;
+        return $this;
     }
 
+
     /**
-     * @param $msg
+     * @param $data
+     * @return $this
+     */
+    public function setReturnData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+
+    /**
+     * @param $expand
+     * @return $this
+     */
+    public function setExpand($expand)
+    {
+        $this->expand = $expand;
+        return $this;
+    }
+
+
+    /**
+     * @param $message
+     * @param $data
+     * @param $expand
+     * @return $this
+     */
+    public function setResponseData($message, $data, $expand)
+    {
+
+        $this->setMessage($message)->setReturnData($data)->setExpand($expand);
+
+        return $this;
+    }
+
+
+    /**
+     * @param $message
+     * @return string
+     */
+    public function constituteMessage($message)
+    {
+        return $message.'成功!';
+    }
+
+
+    /**
+     * 请求成功 200
      * @param array $data
-     * @param null $code
-     * @return mixed
-     */
-    public function status($msg, array $data, $code = null)
-    {
-
-        if ($code) {
-            $this->setStatusCode($code);
-        }
-
-        $status = [
-            'msg'  => $msg,
-            'code' => $this->statusCode,
-        ];
-
-        $data = array_merge($status, $data);
-
-        return $this->respond($data);
-
-    }
-
-    /**
      * @param $message
-     * @param int $code
-     * @param string $status
-     * @return mixed
+     * @param array $expand
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function failed($message, $code = FoundationResponse::HTTP_BAD_REQUEST, $status = 'error')
+    public function responseAsSuccess($data = [], $message = 'success', $expand = [])
     {
 
-        return $this->setStatusCode($code)->message($message, $status);
+        return $this->setCode(FoundationResponse::HTTP_OK)
+                    ->setResponseData($message, $data, $expand)
+                    ->responseJson();
     }
 
 
     /**
+     * 创建成功  201
+     * @param array $data
+     * @param string $message
+     * @param array $expand
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function responseAsCreated($data = [], $message = 'created success', $expand = [])
+    {
+
+        return $this->setCode(FoundationResponse::HTTP_CREATED)
+                    ->setResponseData($message, $data, $expand)
+                    ->responseJson();
+    }
+
+
+    /**
+     * 删除成功  204
      * @param $message
-     * @param string $status
-     * @return mixed
+     * @param array $data
+     * @param array $expand
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function message($message, $status = "success")
+    public function responseAsDeleted($message, $data = [], $expand = [])
     {
 
-        return $this->status($status, [
-            'message' => $message,
-        ]);
+        return $this->setCode(FoundationResponse::HTTP_NO_CONTENT)
+                    ->setResponseData($message, $data, $expand)
+                    ->responseJson();
     }
+
 
     /**
-     * @param string $message
-     * @return mixed
+     * 响应返回
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function internalError($message = "Internal Error!")
+    public function responseJson()
     {
+        $response = ['code' => $this->code, 'message' => $this->message, 'data' => $this->data];
 
-        return $this->failed($message, FoundationResponse::HTTP_INTERNAL_SERVER_ERROR);
+        return response()->json(array_merge($response, $this->expand));
     }
 
-    /**
-     * @param string $message
-     * @return mixed
-     */
-    public function created($message = "created success", $data = [], $extFields = [])
-    {
-        return $this->setStatusCode(FoundationResponse::HTTP_CREATED)
-                    ->respond($data);
-    }
 
-    /**
-     * @param $data
-     * @param string $msg
-     * @return mixed
-     */
-    public function success($data, $msg = "success")
-    {
-
-        return $this->status($msg, compact('data'));
-    }
-
-    /**
-     * @param string $message
-     * @return mixed
-     */
-    public function notFound($message = 'Not Found!')
-    {
-        return $this->failed($message, Foundationresponse::HTTP_NOT_FOUND);
-    }
 }

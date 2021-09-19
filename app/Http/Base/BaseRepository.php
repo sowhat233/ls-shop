@@ -53,6 +53,7 @@ class BaseRepository
         return $this->model->orderBy($orderBy, $sortBy)->get($columns);
     }
 
+
     /**
      * @param $id
      * @return mixed
@@ -60,6 +61,17 @@ class BaseRepository
     public function find($id)
     {
         return $this->model->find($id);
+    }
+
+
+    /**
+     * @param $where
+     * @param $value
+     * @return mixed
+     */
+    public function findValue($where, $value)
+    {
+        return $this->model->where($where)->value($value);
     }
 
 

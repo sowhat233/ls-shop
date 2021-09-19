@@ -10,6 +10,8 @@ use App\Http\Admin\V1\Services\ImagesUploadService;
 class ImagesController extends ApiController
 {
 
+    private $name = '图片';
+
     /**
      * @param ImagesRequest $request
      * @param ImagesUploadService $uploader
@@ -21,7 +23,7 @@ class ImagesController extends ApiController
 
         $result = $uploader->save($request->images);
 
-        return responseJsonAsCreated('上传成功!', $result);
+        return $this->responseAsCreated($this->constituteMessage("{$this->name}上传"), $result);
 
     }
 

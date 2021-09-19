@@ -324,8 +324,7 @@ class ProductService
 
     /**
      * @param $product_id
-     * @return ProductRepository|ProductRepository[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model
-     * @throws ProductException
+     * @return mixed
      * @throws \App\Http\Common\CommonException
      */
     public function changeStatus($product_id)
@@ -333,9 +332,11 @@ class ProductService
 
         $product = $this->productRepo->findProductById($product_id);
 
-        $this->productRepo->update($product_id, ['is_launched' => $this->getNewSaleStatus($product['is_launched'])]);
+        $status = $this->getNewSaleStatus($product['is_launched']);
 
-        return $this->productRepo->findProductById($product_id);
+        $this->productRepo->update($product_id, ['is_launched' => $status]);
+
+        return ProductEnums::ProductStatusName[$status];
 
     }
 

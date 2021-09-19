@@ -6,37 +6,37 @@ namespace App\Http\Admin\V1\Controllers;
 
 use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Requests\CategoryRequest;
-use App\Http\Admin\V1\Resources\CategoryResource;
 use App\Http\Admin\V1\Services\CategoryService;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 
-
 class CategoryController extends ApiController
 {
+
+    private $name = '分类';
 
     /**
      * @param Request $request
      * @param CategoryService $categoryService
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request, CategoryService $categoryService)
     {
-        return CategoryResource::collection($categoryService->getCategoryPaginate($request->all()));
+        return $this->responseAsSuccess($categoryService->getCategoryPaginate($request->all()));
     }
 
 
     /**
      * @param $id
      * @param CategoryRepository $categoriesRepo
-     * @return CategoryResource
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id, CategoryRepository $categoriesRepo)
     {
 
         $category = $categoriesRepo->findCategoryById($id);
 
-        return new CategoryResource($category);
+        return $this->responseAsSuccess($category);
 
     }
 
@@ -51,7 +51,7 @@ class CategoryController extends ApiController
 
         $result = $categoriesRepo->create($request->only(['name', 'description']));
 
-        return responseJsonAsCreated($result);
+        return $this->responseAsCreated($this->constituteMessage("{$this->name}创建"), $result);
     }
 
 
@@ -67,7 +67,7 @@ class CategoryController extends ApiController
 
         $categoriesRepo->update($id, $request->only('name', 'description'));
 
-        return responseJsonAsDeleted($categoriesRepo->findCategoryById($id));
+        return $this->responseAsSuccess($this->constituteMessage("{$this->name}编辑"), $categoriesRepo->findCategoryById($id));
 
     }
 
@@ -83,7 +83,7 @@ class CategoryController extends ApiController
 
         $categoriesService->deleteCategory($id);
 
-        return responseJsonAsDeleted();
+        return $this->responseAsDeleted($this->constituteMessage("{$this->name}删除"));
     }
 
 }
