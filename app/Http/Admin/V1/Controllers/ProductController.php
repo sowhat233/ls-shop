@@ -74,6 +74,7 @@ class ProductController extends ApiController
      * @param ProductRepository $productRepo
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Http\Admin\V1\Exceptions\ProductException
+     * @throws \Throwable
      */
     public function update($id, ProductRequest $request, ProductService $productService, ProductRepository $productRepo)
     {
@@ -98,5 +99,22 @@ class ProductController extends ApiController
 
         return $this->responseAsSuccess([], "{$this->name}已$status!");
     }
+
+
+
+    /**
+     * @param $id
+     * @param ProductService $productService
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \App\Http\Admin\V1\Exceptions\ProductException
+     */
+    public function destroy($id, ProductService $productService)
+    {
+
+        $productService->deleteProduct($id);
+
+        return $this->responseAsDeleted($this->combineMessage("{$this->name}删除"));
+    }
+
 
 }

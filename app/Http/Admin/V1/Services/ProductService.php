@@ -472,5 +472,35 @@ class ProductService
         
     }
 
+    /**
+     * @param $product_id
+     * @throws ProductException
+     */
+    public function deleteProduct($product_id)
+    {
+
+        $product = $this->productRepo->getProductWithSkuById($product_id, ['id'], ['id', 'product_id'])->toArray();
+
+        //开启事务
+        DB::beginTransaction();
+
+        try {
+
+            //删除对应的sku
+            $this->deleteSkuByIds(array_column($product['sku'], 'id'));
+
+            $product->delete();
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            throw new ProductException('删除失败!', $e);
+        }
+
+    }
+
 
 }
