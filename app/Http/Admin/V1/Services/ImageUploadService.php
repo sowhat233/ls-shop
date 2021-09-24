@@ -5,7 +5,7 @@ namespace App\Http\Admin\V1\Services;
 use App\Http\Admin\V1\Exceptions\ImgException;
 use Str;
 
-class ImagesUploadService
+class ImageUploadService
 {
 
     protected $allowed_ext = ["png", "jpg", 'jpeg'];

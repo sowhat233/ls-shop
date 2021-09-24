@@ -34,7 +34,6 @@ class ProductService
         $product_info = $params['product_info'];
         $product_sku  = $params['product_sku'];
 
-        $insert_product = $this->getProductInsertData($product_info, $product_sku);
 
         //开启事务
         DB::beginTransaction();
@@ -42,13 +41,13 @@ class ProductService
         try {
 
             //添加product数据
-            $product = $this->productRepo->create($insert_product);
+            $product = $this->productRepo->create($this->getProductColumnData($product_info, $product_sku));
 
             //如果是多规格
             if ($product_info['is_multiple_spec'] == ProductEnums::IsMultipleSpec) {
 
                 //添加sku数据
-                $this->skuRepo->insert($this->getProductSkuInsertData($product_sku['sku_list'], $product->id));
+                $this->skuRepo->insert($this->getProductSkuColumnData($product_sku['sku_list'], $product->id));
 
             }
 
@@ -60,7 +59,7 @@ class ProductService
 
             DB::rollBack();
 
-            throw new ProductException('产品添加失败!', $e);
+            throw new ProductException('商品添加失败!', $e);
 
         }
 
@@ -95,7 +94,7 @@ class ProductService
         if (isset($params['query'])) {
 
             $where[] = [
-                'name', 'like', $params['query'].'%',
+                'name', 'like', $params['query'] . '%',
             ];
         }
 
@@ -106,7 +105,7 @@ class ProductService
      * @param $product_id
      * @return mixed
      */
-    public function productShow($product_id)
+    public function showProduct($product_id)
     {
 
         $data = $this->productRepo->findProductById($product_id, ['*'], ['category', 'sku']);
@@ -143,33 +142,35 @@ class ProductService
         return $data;
     }
 
+
     /**
      * @param $info
      * @param $sku
+     * @param bool $create
      * @return mixed
      */
-    private function getProductInsertData($info, $sku)
+    private function getProductColumnData($info, $sku, $create = true)
     {
 
         //如果是多规格
         if ($info['is_multiple_spec'] == ProductEnums::IsMultipleSpec) {
 
-            $product['stock']      = 0; //多规格情况下 库存暂定为0
-            $product['price']      = $this->getSkuLowestPrice($sku['sku_list']);//多规格情况下 price就是sku的最低价格
-            $product['cost_price'] = 0; //多规格情况下 进价暂定为0.00
-            $product['spec_items'] = json_encode($sku['spec_items'], true); //参数列表
+            $product['is_multiple_spec'] = ProductEnums::IsMultipleSpec;
+            $product['stock']            = 0; //多规格情况下 库存暂定为0
+            $product['price']            = $this->getSkuLowestPrice($sku['sku_list']);//多规格情况下 price就是sku的最低价格
+            $product['cost_price']       = 0; //多规格情况下 进价暂定为0.00
+            $product['spec_items']       = json_encode($sku['spec_items'], true); //参数列表
 
         }
         else {
 
-            $product['is_multiple_spec'] = ProductEnums::NotMultipleSpec;
+            $product['is_multiple_spec'] = ProductEnums::NotMultipleSpec; //多规格情况下 库存暂定为0
             $product['stock']            = $info['stock']; //库存
             $product['price']            = $info['price'];//售价
             $product['cost_price']       = $info['cost_price'];//进价
             $product['spec_items']       = null; //单规格 这个参数为null
 
         }
-
 
         $product['category_id'] = $info['category_id'];
         $product['name']        = $info['name'];
@@ -178,9 +179,14 @@ class ProductService
         $product['detail']      = $info['detail']; //详情
         $product['is_launched'] = $info['is_launched']; //是否上架
         $product['carousels']   = implode(',', $info['carousels']); //轮播图
-        $product['sales']       = 0; //销量
-        $product['comments']    = 0; //评论量
-        $product['created_at']  = time(); //创建时间
+
+        if ($create) {
+
+            $product['sales']      = 0; //销量
+            $product['comments']   = 0; //评论量
+            $product['created_at'] = time(); //创建时间
+        }
+
 
         return $product;
 
@@ -191,24 +197,24 @@ class ProductService
      * @param $product_id
      * @return array
      */
-    private function getProductSkuInsertData($sku_list, $product_id)
+    private function getProductSkuColumnData($sku_list, $product_id)
     {
 
-        $insert_arr = [];
+        $data = [];
 
         foreach ($sku_list as $key => $value) {
 
-            $insert_arr[$key]['product_id'] = $product_id;
-            $insert_arr[$key]['price']      = $value['price'];
-            $insert_arr[$key]['cost_price'] = $value['cost_price'];
-            $insert_arr[$key]['stock']      = $value['stock'];
-            $insert_arr[$key]['image']      = $value['image'];
-            $insert_arr[$key]['attrs']      = json_encode($value['attrs'], true);
-            $insert_arr[$key]['sales']      = 0;
+            $data[$key]['product_id'] = $product_id;
+            $data[$key]['price']      = $value['price'];
+            $data[$key]['cost_price'] = $value['cost_price'];
+            $data[$key]['stock']      = $value['stock'];
+            $data[$key]['image']      = $value['image'];
+            $data[$key]['attrs']      = json_encode($value['attrs'], true);
+            $data[$key]['sales']      = 0;
 
         }
 
-        return $insert_arr;
+        return $data;
 
     }
 
@@ -256,7 +262,7 @@ class ProductService
                 foreach ($value['sku'] as $k => $sku) {
 
                     //规格属性名
-                    $value['sku'][$k]['attrs_name'] = $this->transformAttrs($sku['attrs']);
+                    $value['sku'][$k]['attrs'] = $this->transformAttrs($sku['attrs']);
 
                 }
 
@@ -292,8 +298,8 @@ class ProductService
 
     /**
      * @param $attrs
-     * @return string
-     * json转字符串
+     * @return array
+     * 转数组
      */
     private function transformAttrs($attrs)
     {
@@ -304,21 +310,11 @@ class ProductService
 
         foreach ($data as $key => $value) {
 
-            $result[] = $key.'：'.$value;
+            $result[] = $key . '：' . $value;
 
         }
 
-        return implode('，', $result);
-
-
-        /*
-          $attrs = {"内存": "128G", "颜色": "白色"}
-
-          转换成
-
-          $result = '内存：128G,颜色：白色';
-
-         */
+        return $result;
 
     }
 
@@ -361,5 +357,91 @@ class ProductService
 
     }
 
+
+    /**
+     * @param $product_id
+     * @param $product_column
+     * @param $sku_column
+     * @return mixed
+     */
+    public function handleProductEdit($product_id, $product_column, $sku_column)
+    {
+        return $this->transformProductEditData($this->productRepo->getProductWithSkuById($product_id, $product_column, $sku_column));
+    }
+
+
+    /**
+     * @param $product
+     * @return mixed
+     */
+    private function transformProductEditData($product)
+    {
+
+        foreach ($product['sku'] as $key => $value) {
+
+            $value['attrs'] = $data = json_decode($value['attrs'], true);
+
+        }
+
+        return $product;
+
+    }
+
+
+    /**
+     * @param $params
+     * @param $product_id
+     * @throws ProductException
+     */
+    public function updateProduct($params, $product_id)
+    {
+
+        $product_info = $params['product_info'];
+        $product_sku  = $params['product_sku'];
+
+        $old_product = $this->productRepo->getProductWithSkuById($product_id, ['id', 'is_multiple_spec'], ['id', 'product_id', 'attrs']);
+        logDebug($old_product);
+        logDebug($old_product['is_multiple_spec']);
+        //开启事务
+        DB::beginTransaction();
+
+        try {
+
+            //更新product数据
+            $this->productRepo->update($product_id, $this->getProductColumnData($product_info, $product_sku, false));
+
+            //规格类型发生变化
+            if ($old_product['is_multiple_spec'] != $product_info['is_multiple_spec']) {
+
+                //如果不是多规格 说明是多规格转单规格 需要删除对应的sku
+                if ($product_info['is_multiple_spec'] != ProductEnums::IsMultipleSpec) {
+
+                    foreach ($old_product['sku'] as $key => $value) {
+
+                        $this->skuRepo->delete($value['id']);
+                    }
+
+                }//这种情况就是单规格转多规格
+                else {
+
+                    //添加sku数据
+                    $this->skuRepo->insert($this->getProductSkuColumnData($product_sku['sku_list'], $product_id));
+
+                }
+
+
+            }
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            throw new ProductException('商品更新失败!', $e);
+
+        }
+
+    }
 
 }

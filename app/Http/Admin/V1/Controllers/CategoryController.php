@@ -51,7 +51,7 @@ class CategoryController extends ApiController
 
         $result = $categoriesRepo->create($request->only(['name', 'description']));
 
-        return $this->responseAsCreated($this->constituteMessage("{$this->name}创建"), $result);
+        return $this->responseAsCreated($result, $this->combineMessage("{$this->name}创建"));
     }
 
 
@@ -67,7 +67,7 @@ class CategoryController extends ApiController
 
         $categoriesRepo->update($id, $request->only('name', 'description'));
 
-        return $this->responseAsSuccess($this->constituteMessage("{$this->name}编辑"), $categoriesRepo->findCategoryById($id));
+        return $this->responseAsSuccess($categoriesRepo->findCategoryById($id), $this->combineMessage("{$this->name}编辑"));
 
     }
 
@@ -83,7 +83,17 @@ class CategoryController extends ApiController
 
         $categoriesService->deleteCategory($id);
 
-        return $this->responseAsDeleted($this->constituteMessage("{$this->name}删除"));
+        return $this->responseAsDeleted($this->combineMessage("{$this->name}删除"));
+    }
+
+    /**
+     * @param CategoryRepository $categoryRepo
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function all(CategoryRepository $categoryRepo)
+    {
+        return $this->responseAsSuccess(['category_list' => $categoryRepo->getCategoryList(['id', 'name'])]);
+
     }
 
 }

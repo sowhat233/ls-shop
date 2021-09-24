@@ -17,14 +17,14 @@ Route::group([], function () {
 Route::group(['middleware' => 'admin',], function () {
 
     // 上传图片
-    Route::post('images', 'ImagesController@store')->name('images.store');
+    Route::post('image', 'ImageController@store')->name('image.store');
 
     Route::get('product', 'ProductController@index')->name('product.index');
     Route::get('product/{id}', 'ProductController@show')->where(['id' => '[0-9]+'])->name('product.show');
+    Route::get('product/{id}/edit', 'ProductController@edit')->where(['id' => '[0-9]+'])->name('product.edit');
     Route::post('product', 'ProductController@store')->name('product.store');
     Route::PATCH('product/{id}', 'ProductController@update')->where(['id' => '[0-9]+'])->name('product.update');
     Route::delete('product/{id}', 'ProductController@destroy')->where(['id' => '[0-9]+'])->name('product.destroy');
-    Route::get('product/category', 'ProductController@categoryList')->name('product.categoryList');
     Route::post('product/status', 'ProductController@changeStatus')->name('product.changeStatus');
 
 
@@ -33,7 +33,7 @@ Route::group(['middleware' => 'admin',], function () {
     Route::post('category', 'CategoryController@store')->name('category.store');
     Route::PATCH('category/{id}', 'CategoryController@update')->where(['id' => '[0-9]+'])->name('category.update');
     Route::delete('category/{id}', 'CategoryController@destroy')->where(['id' => '[0-9]+'])->name('category.destroy');
-
+    Route::get('category/all', 'CategoryController@all')->name('category.all');
 
 });
 

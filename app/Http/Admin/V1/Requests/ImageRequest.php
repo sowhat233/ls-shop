@@ -6,13 +6,13 @@ namespace App\Http\Admin\V1\Requests;
 
 use App\Http\Base\BaseFormRequest;
 
-class ImagesRequest extends BaseFormRequest
+class ImageRequest extends BaseFormRequest
 {
     public function rules()
     {
 
         $rules = [
-            'images' => ['required'],
+            'image' => ['required'],
         ];
 
         return $rules;
@@ -21,8 +21,8 @@ class ImagesRequest extends BaseFormRequest
     public function messages()
     {
         return [
-            'images.required' => '图片未上传',
-            'images.mimes'    => '仅支持jpg、jpeg和png格式',
+            'image.required' => '图片未上传',
+            'image.mimes'    => '仅支持jpg、jpeg和png格式',
         ];
     }
 

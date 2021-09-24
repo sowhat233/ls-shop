@@ -30,7 +30,7 @@ class LoginController extends ApiController
             'expires_in'   => config('jwt.ttl')*60,//jwt以分钟为单位 这里乘以60 使其变成秒单位
         ];
 
-        return $this->responseAsSuccess($this->constituteMessage("登录"), $data);
+        return $this->responseAsSuccess($data, $this->combineMessage("登录"));
 
     }
 

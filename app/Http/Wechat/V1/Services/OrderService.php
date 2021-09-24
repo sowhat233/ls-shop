@@ -55,7 +55,7 @@ class OrderService
 
 
     /**
-     * 根据前台提交的订单里的id获取产品
+     * 根据前台提交的订单里的id获取商品
      * @param $selected_products
      * @return mixed
      */

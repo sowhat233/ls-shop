@@ -61,7 +61,7 @@ class Handler extends ExceptionHandler
         //404 资源不存在
         else if ($exception instanceof NotFoundHttpException) {
 
-            $response['message'] = '资源不存在!';
+            $response['message'] = '404 not found!';
 
             return response()->json($response, FoundationResponse::HTTP_NOT_FOUND);
         }

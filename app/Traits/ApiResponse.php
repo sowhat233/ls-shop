@@ -23,10 +23,10 @@ trait  ApiResponse
 
 
     /**
-     * @param $code
+     * @param int $code
      * @return $this
      */
-    public function setCode($code)
+    public function setCode(int $code)
     {
         $this->code = $code;
         return $this;
@@ -34,10 +34,10 @@ trait  ApiResponse
 
 
     /**
-     * @param $message
+     * @param string $message
      * @return $this
      */
-    public function setMessage($message)
+    public function setMessage(string $message)
     {
         $this->message = $message;
         return $this;
@@ -45,7 +45,7 @@ trait  ApiResponse
 
 
     /**
-     * @param $data
+     * @param  $data
      * @return $this
      */
     public function setReturnData($data)
@@ -56,7 +56,7 @@ trait  ApiResponse
 
 
     /**
-     * @param $expand
+     * @param  $expand
      * @return $this
      */
     public function setExpand($expand)
@@ -67,12 +67,12 @@ trait  ApiResponse
 
 
     /**
-     * @param $message
-     * @param $data
-     * @param $expand
+     * @param string $message
+     * @param  $data
+     * @param  $expand
      * @return $this
      */
-    public function setResponseData($message, $data, $expand)
+    public function setResponseData(string $message, $data, $expand)
     {
 
         $this->setMessage($message)->setReturnData($data)->setExpand($expand);
@@ -82,10 +82,10 @@ trait  ApiResponse
 
 
     /**
-     * @param $message
+     * @param string $message
      * @return string
      */
-    public function constituteMessage($message)
+    public function combineMessage(string $message)
     {
         return $message.'成功!';
     }
@@ -93,12 +93,12 @@ trait  ApiResponse
 
     /**
      * 请求成功 200
-     * @param array $data
-     * @param $message
-     * @param array $expand
+     * @param  $data
+     * @param string $message
+     * @param  $expand
      * @return \Illuminate\Http\JsonResponse
      */
-    public function responseAsSuccess($data = [], $message = 'success', $expand = [])
+    public function responseAsSuccess($data = [], string $message = 'success', $expand = [])
     {
 
         return $this->setCode(FoundationResponse::HTTP_OK)
@@ -109,12 +109,12 @@ trait  ApiResponse
 
     /**
      * 创建成功  201
-     * @param array $data
+     * @param  $data
      * @param string $message
-     * @param array $expand
+     * @param  $expand
      * @return \Illuminate\Http\JsonResponse
      */
-    public function responseAsCreated($data = [], $message = 'created success', $expand = [])
+    public function responseAsCreated($data = [], string $message = 'created success', $expand = [])
     {
 
         return $this->setCode(FoundationResponse::HTTP_CREATED)
@@ -125,12 +125,12 @@ trait  ApiResponse
 
     /**
      * 删除成功  204
-     * @param $message
-     * @param array $data
-     * @param array $expand
+     * @param string $message
+     * @param  $data
+     * @param  $expand
      * @return \Illuminate\Http\JsonResponse
      */
-    public function responseAsDeleted($message, $data = [], $expand = [])
+    public function responseAsDeleted(string $message, $data = [], $expand = [])
     {
 
         return $this->setCode(FoundationResponse::HTTP_NO_CONTENT)

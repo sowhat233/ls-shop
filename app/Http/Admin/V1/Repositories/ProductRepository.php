@@ -68,9 +68,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
      */
     public function findProductById($id, $column = ['*'], $with = [])
     {
-
         return $this->findOneOrFail($id, $this, $column, $with);
-
     }
 
 
@@ -83,6 +81,24 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
     public function dissociateCategory($category_id, $value = null)
     {
         return $this->update($category_id, $value, 'category_id');
+    }
+
+
+    /**
+     * @param $product_id
+     * @param $product_column
+     * @param $sku_column
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model
+     */
+    public function getProductWithSkuById($product_id, $product_column, $sku_column)
+    {
+
+        return $this->findOneOrFail($product_id, $this, $product_column, [
+            'sku' => function ($query) use ($sku_column) {
+                $query->select($sku_column);
+            },
+        ]);
+
     }
 
 

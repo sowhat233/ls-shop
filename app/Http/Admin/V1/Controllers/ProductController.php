@@ -5,6 +5,7 @@ namespace App\Http\Admin\V1\Controllers;
 
 
 use App\Http\Admin\V1\Repositories\ProductRepository;
+use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Requests\ProductRequest;
 use App\Http\Admin\V1\Services\ProductService;
 use App\Http\Controllers\ApiController;
@@ -34,7 +35,7 @@ class ProductController extends ApiController
     public function show($id, ProductService $productService)
     {
 
-        $product = $productService->productShow($id);
+        $product = $productService->showProduct($id);
 
         return $this->responseAsSuccess($product);
     }
@@ -49,11 +50,20 @@ class ProductController extends ApiController
      */
     public function store(ProductRequest $request, ProductService $productService)
     {
+        return $this->responseAsCreated($productService->createProduct($request->only(['product_info', 'product_sku'])), $this->combineMessage("{$this->name}创建"));
+    }
 
-        $result = $productService->createProduct($request->only(['product_info', 'product_sku']));
 
-        return $this->responseAsCreated($this->constituteMessage("{$this->name}创建"), $result);
-
+    /**
+     * @param $id
+     * @param ProductService $productService
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function edit($id, ProductService $productService)
+    {
+        $product_column = ['id', 'name', 'category_id', 'description', 'detail', 'image', 'carousels', 'stock', 'price', 'cost_price', 'is_multiple_spec'];
+        $sku_column     = ['product_id', 'price', 'cost_price', 'stock', 'image', 'attrs'];
+        return $this->responseAsSuccess($productService->handleProductEdit($id, $product_column, $sku_column));
     }
 
 
@@ -63,13 +73,14 @@ class ProductController extends ApiController
      * @param ProductService $productService
      * @param ProductRepository $productRepo
      * @return \Illuminate\Http\JsonResponse
+     * @throws \App\Http\Admin\V1\Exceptions\ProductException
      */
     public function update($id, ProductRequest $request, ProductService $productService, ProductRepository $productRepo)
     {
 
-        $productService->update($id, $request->only(['product_info', 'product_sku']));
+        $productService->updateProduct($request->only(['product_info', 'product_sku']),$id);
 
-        return $this->responseAsSuccess($this->constituteMessage("{$this->name}编辑"), $productRepo->findProductById($id));
+        return $this->responseAsSuccess($productRepo->findProductById($id), $this->combineMessage("{$this->name}编辑"));
 
     }
 
@@ -85,7 +96,7 @@ class ProductController extends ApiController
 
         $status = $productService->changeStatus($request->input('id'));
 
-        return $this->responseAsSuccess("{$this->name}已$status!");
+        return $this->responseAsSuccess([], "{$this->name}已$status!");
     }
 
 }
