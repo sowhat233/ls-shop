@@ -17,20 +17,5 @@ class BaseException extends Exception
         return response()->json(['message' => $this->message], $this->code);
     }
 
-    /**
-     * @param $message
-     * @param $e
-     * @return mixed
-     */
-    public function handleErrorMessage($message, $e)
-    {
-
-        if ($e !== false) {
-
-            $message = config('app.debug') ? $e->getMessage() : $message;
-        }
-
-        return $message;
-    }
 
 }

@@ -4,6 +4,7 @@
 namespace App\Http\Admin\V1\Services;
 
 
+use App\Http\Admin\V1\Exceptions\CategoryException;
 use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Repositories\ProductRepository;
 use DB;
@@ -47,7 +48,7 @@ class CategoryService
         if (isset($params['query'])) {
 
             $where[] = [
-                'name', 'like', $params['query'].'%',
+                'name', 'like', $params['query'] . '%',
             ];
         }
 
@@ -68,8 +69,12 @@ class CategoryService
 
         try {
 
-            //解除与product表的关联
-            $this->productRepo->dissociateCategory($id);
+            //如果该分类下面有商品 则不允许删除
+            if ($this->productRepo->getProductIdByCategoryId($id) !== null) {
+
+                throw new CategoryException('删除失败!');
+
+            }
 
             $category->delete();
 
@@ -79,6 +84,7 @@ class CategoryService
 
             DB::rollBack();
 
+            throw new CategoryException('删除失败!');
         }
 
     }

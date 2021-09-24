@@ -59,7 +59,7 @@ class ProductService
 
             DB::rollBack();
 
-            throw new ProductException('添加失败!', $e);
+            throw new ProductException('添加失败!');
 
         }
 
@@ -451,7 +451,7 @@ class ProductService
 
             DB::rollBack();
 
-            throw new ProductException('更新失败!', $e);
+            throw new ProductException('更新失败!');
 
         }
 
@@ -471,6 +471,7 @@ class ProductService
         }
         
     }
+
 
     /**
      * @param $product_id
@@ -497,7 +498,7 @@ class ProductService
 
             DB::rollBack();
 
-            throw new ProductException('删除失败!', $e);
+            throw new ProductException('删除失败!');
         }
 
     }

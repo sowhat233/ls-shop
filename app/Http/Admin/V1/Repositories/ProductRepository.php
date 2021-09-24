@@ -73,18 +73,6 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
 
 
     /**
-     * @param $category_id
-     * @param null $value
-     * @return mixed
-     * @throws \App\Http\Common\CommonException
-     */
-    public function dissociateCategory($category_id, $value = null)
-    {
-        return $this->update($category_id, $value, 'category_id');
-    }
-
-
-    /**
      * @param $product_id
      * @param $product_column
      * @param $sku_column
@@ -99,6 +87,16 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
             },
         ]);
 
+    }
+
+
+    /**
+     * @param $category_id
+     * @return mixed
+     */
+    public function getProductIdByCategoryId($category_id)
+    {
+        return $this->findValue(['category_id', $category_id], 'id');
     }
 
 

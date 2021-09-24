@@ -12,12 +12,11 @@ class TokenException extends BaseException
      * 默认抛出401异常
      * TokenException constructor.
      * @param string $message
-     * @param bool $e
      * @param int $code
      */
-    public function __construct($message = "", $e = false, $code = FoundationResponse::HTTP_UNAUTHORIZED)
+    public function __construct($message = "",$code = FoundationResponse::HTTP_UNAUTHORIZED)
     {
-        parent::__construct($this->handleErrorMessage($message, $e), $code);
+        parent::__construct($message, $code);
     }
 
 }

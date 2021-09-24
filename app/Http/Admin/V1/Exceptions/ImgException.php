@@ -11,12 +11,11 @@ class ImgException extends BaseException
     /**
      * ImgException constructor.
      * @param string $message
-     * @param bool $e
      * @param int $code
      */
-    public function __construct($message = "", $e = false, $code = FoundationResponse::HTTP_INTERNAL_SERVER_ERROR)
+    public function __construct($message = "", $code = FoundationResponse::HTTP_INTERNAL_SERVER_ERROR)
     {
-        parent::__construct($this->handleErrorMessage($message, $e), $code);
+        parent::__construct($message, $code);
     }
 
 }
