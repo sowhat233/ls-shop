@@ -72,7 +72,7 @@ class CategoryService
             //如果该分类下面有商品 则不允许删除
             if ($this->productRepo->getProductIdByCategoryId($id) !== null) {
 
-                throw new CategoryException('删除失败!');
+                throw new CategoryException('该分类下面还有产品 无法删除!');
 
             }
 
@@ -84,7 +84,16 @@ class CategoryService
 
             DB::rollBack();
 
-            throw new CategoryException('删除失败!');
+            if ($e instanceof CategoryException) {
+
+                $message = $e->getMessage();
+            }
+            else {
+
+                $message = '删除失败!';
+            }
+
+            throw new CategoryException($message);
         }
 
     }
