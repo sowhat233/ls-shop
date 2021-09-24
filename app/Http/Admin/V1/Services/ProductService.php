@@ -59,7 +59,7 @@ class ProductService
 
             DB::rollBack();
 
-            throw new ProductException('商品添加失败!', $e);
+            throw new ProductException('添加失败!', $e);
 
         }
 
@@ -392,6 +392,7 @@ class ProductService
      * @param $params
      * @param $product_id
      * @throws ProductException
+     * @throws \Throwable
      */
     public function updateProduct($params, $product_id)
     {
@@ -399,9 +400,8 @@ class ProductService
         $product_info = $params['product_info'];
         $product_sku  = $params['product_sku'];
 
-        $old_product = $this->productRepo->getProductWithSkuById($product_id, ['id', 'is_multiple_spec'], ['id', 'product_id', 'attrs']);
-        logDebug($old_product);
-        logDebug($old_product['is_multiple_spec']);
+        $original_product = $this->productRepo->getProductWithSkuById($product_id, ['id', 'is_multiple_spec'], ['id', 'product_id', 'attrs']);
+
         //开启事务
         DB::beginTransaction();
 
@@ -411,25 +411,38 @@ class ProductService
             $this->productRepo->update($product_id, $this->getProductColumnData($product_info, $product_sku, false));
 
             //规格类型发生变化
-            if ($old_product['is_multiple_spec'] != $product_info['is_multiple_spec']) {
+            if ($original_product['is_multiple_spec'] != $product_info['is_multiple_spec']) {
 
-                //如果不是多规格 说明是多规格转单规格 需要删除对应的sku
-                if ($product_info['is_multiple_spec'] != ProductEnums::IsMultipleSpec) {
 
-                    foreach ($old_product['sku'] as $key => $value) {
-
-                        $this->skuRepo->delete($value['id']);
-                    }
-
-                }//这种情况就是单规格转多规格
-                else {
+                //如果是多规格的情况 那就是单规格转多规格
+                if ($product_info['is_multiple_spec'] == ProductEnums::IsMultipleSpec) {
 
                     //添加sku数据
                     $this->skuRepo->insert($this->getProductSkuColumnData($product_sku['sku_list'], $product_id));
 
+                }//否则就是多规格转单规格 需要删除对应的sku
+                else {
+
+                    //删除对应的sku
+                    $this->deleteSkuByIds(array_column($original_product->toArray()['sku'], 'id'));
+
                 }
 
+            }//规格类型没有发生变化
+            else {
 
+                //如果是多规格的情况
+                if ($product_info['is_multiple_spec'] == ProductEnums::IsMultipleSpec) {
+
+                    //删除对应的sku
+                    $this->deleteSkuByIds(array_column($original_product->toArray()['sku'], 'id'));
+
+                    //重新添加sku数据
+                    $this->skuRepo->insert($this->getProductSkuColumnData($product_sku['sku_list'], $product_id));
+
+                }
+
+                //单规格情况下不需要考虑sku的问题
             }
 
             DB::commit();
@@ -438,10 +451,26 @@ class ProductService
 
             DB::rollBack();
 
-            throw new ProductException('商品更新失败!', $e);
+            throw new ProductException('更新失败!', $e);
 
         }
 
     }
+
+
+    /**
+     * @param $ids
+     * @throws \App\Http\Common\CommonException
+     */
+    private function deleteSkuByIds($ids)
+    {
+
+        foreach ($ids as $key => $id) {
+
+            $this->skuRepo->delete($id);
+        }
+        
+    }
+
 
 }

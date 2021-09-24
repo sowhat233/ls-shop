@@ -86,6 +86,7 @@ class CategoryController extends ApiController
         return $this->responseAsDeleted($this->combineMessage("{$this->name}删除"));
     }
 
+
     /**
      * @param CategoryRepository $categoryRepo
      * @return \Illuminate\Http\JsonResponse
