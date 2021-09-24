@@ -472,6 +472,7 @@ class ProductService
         
     }
 
+
     /**
      * @param $product_id
      * @throws ProductException
