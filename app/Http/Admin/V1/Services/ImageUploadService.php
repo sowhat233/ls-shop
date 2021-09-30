@@ -16,7 +16,7 @@ class ImageUploadService
      * @return array
      * @throws ImgException
      */
-    public function save($file, $folder_name = false)
+    public function store($file, $folder_name = false)
     {
 
         // 获取文件的后缀名

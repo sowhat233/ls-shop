@@ -20,7 +20,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
 
     public function scopeStatus()
     {
-        $where[] = ['status', 1];
+        $where[] = ['status' => 1];
 
         return $where;
     }
@@ -44,7 +44,11 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
     public function getProductsByIdsWithSku($ids, $column = ['*'])
     {
 
-        return $this->model->whereIn('id', $ids)->where($this->scopeStatus())->with('sku')->select($column)->get();
+        return $this->model->whereIn('id', $ids)
+                           ->where($this->scopeStatus())
+                           ->with('sku')
+                           ->select($column)
+                           ->get();
 
     }
 

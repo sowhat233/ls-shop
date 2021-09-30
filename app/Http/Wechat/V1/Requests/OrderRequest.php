@@ -6,7 +6,7 @@ namespace App\Http\Wechat\V1\Requests;
 
 use App\Http\Base\BaseFormRequest;
 
-class PlaceOrderRequest extends BaseFormRequest
+class OrderRequest extends BaseFormRequest
 {
 
     public function rules()

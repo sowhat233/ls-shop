@@ -22,7 +22,7 @@ class ImageController extends ApiController
     public function store(ImageRequest $request, ImageUploadService $imageUploadService)
     {
 
-        $result = $imageUploadService->save($request->image);
+        $result = $imageUploadService->store($request->image);
 
         return $this->responseAsCreated($result, $this->combineMessage("{$this->name}上传"));
 

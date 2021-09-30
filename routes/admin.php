@@ -10,7 +10,6 @@ Route::group([], function () {
     Route::post('/login', 'LoginController@store')->name('login.store');
     Route::get('/test', 'TestController@test')->name('test.test');
 
-
 });
 
 
@@ -30,6 +29,7 @@ Route::group(['middleware' => 'admin',], function () {
 
     Route::get('category', 'CategoryController@index')->name('category.index');
     Route::get('category/{id}', 'CategoryController@show')->where(['id' => '[0-9]+'])->name('category.show');
+    Route::get('category/{id}/edit', 'CategoryController@edit')->where(['id' => '[0-9]+'])->name('category.edit');
     Route::post('category', 'CategoryController@store')->name('category.store');
     Route::PATCH('category/{id}', 'CategoryController@update')->where(['id' => '[0-9]+'])->name('category.update');
     Route::delete('category/{id}', 'CategoryController@destroy')->where(['id' => '[0-9]+'])->name('category.destroy');

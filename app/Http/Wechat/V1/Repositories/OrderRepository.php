@@ -34,7 +34,7 @@ class OrderRepository extends BaseRepository implements NotFoundExceptionInterfa
      */
     public function orderNotExists($order_no)
     {
-        return $this->where('no', $order_no)->exists();
+        return $this->model->where('no', $order_no)->exists();
     }
 
 

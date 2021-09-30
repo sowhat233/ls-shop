@@ -27,46 +27,15 @@ class OrderService
      * @param $params
      * @throws \Throwable
      */
-    public function placeOrder($params)
+    public function store($params)
     {
 
-        $products = $this->getProductsByOrder($params['product_list']);
+        $product_ids = array_column($params['product_list'], 'id');
 
-        $this->handlePlaceOrder($params['product_list'], $products);
+        //根据前台提交的订单里的id获取商品
+        $products = $this->flipProduct($this->productRepo->getProductsByIdsWithSku($product_ids, ['*']));
 
-    }
-
-    /**
-     * @param $selected_products
-     * @return array
-     */
-    public function getSelectedProductId($selected_products)
-    {
-
-        $product_ids = [];
-
-        foreach ($selected_products as $value) {
-            array_push($product_ids, $value['id']);
-        }
-
-        return $product_ids;
-
-    }
-
-
-    /**
-     * 根据前台提交的订单里的id获取商品
-     * @param $selected_products
-     * @return mixed
-     */
-    public function getProductsByOrder($selected_products)
-    {
-
-        $product_ids = $this->getSelectedProductId($selected_products);
-
-        $products = $this->productRepo->getProductsByIdsWithSku($product_ids);
-
-        return $this->ProductFlip($products);
+        $this->handleCreateOrder($params['product_list'], $products);
 
     }
 
@@ -76,7 +45,7 @@ class OrderService
      * @param $products
      * @return array
      */
-    public function ProductFlip($products)
+    public function flipProduct($products)
     {
 
         $product_arr = [];
@@ -93,12 +62,61 @@ class OrderService
 
 
     /**
+     * 检查库存并计算订单金额
+     * @param $selected_products
+     * @param $products
+     * @return float|int
+     * @throws OrderException
+     */
+    public function getTotalAmount($selected_products, $products)
+    {
+
+        $total_amount = 0;
+
+        foreach ($selected_products as $key => $value) {
+
+            //直接取下标
+            if (isset($products[$value['id']])) {
+
+                $this_product = $products[$value['id']];
+
+                //检查库存 如果订单的库存大于数据库的库存 抛出异常
+                if ($value['amount'] > $this_product['stock']) {
+
+                    $this->underStockException($this_product);
+                }
+
+                $status = $this->productRepo->decreaseStock($value['id'], $value['amount']);
+
+                //更新失败 说明库存不足 抛出异常
+                if ($status <= 0) {
+
+                    $this->underStockException($this_product);
+                }
+
+                //计算金额
+                $total_amount += $sku->price * $data['amount'];
+
+            }
+            else {
+
+                throw new OrderException('有商品不存在或已下架!');
+            }
+
+
+        }
+
+        return $total_amount;
+    }
+
+
+    /**
      * 检查库存 减库存 生成订单号
      * @param $selected_products
      * @param $products
      * @throws \Throwable
      */
-    public function handlePlaceOrder($selected_products, $products)
+    public function handleCreateOrder($selected_products, $products)
     {
 
         //开启事务
@@ -106,37 +124,11 @@ class OrderService
 
         try {
 
-            foreach ($selected_products as $key => $value) {
-
-                //直接取下标
-                if (isset($products[$value['id']])) {
-
-                    $this_product = $products[$value['id']];
-
-                    //检查库存 如果订单的库存大于数据库的库存 抛出异常
-                    if ($value['amount'] > $this_product['stock']) {
-
-                        $this->stockInsufficiency($this_product);
-                    }
-
-                    $status = $this->productRepo->decreaseStock($value['id'], $value['amount']);
-
-                    //更新失败 说明库存不足 抛出异常
-                    if ($status <= 0) {
-
-                        $this->stockInsufficiency($this_product);
-                    }
-
-                }
-                else {
-
-                    throw new OrderException('有商品不存在或已下架!');
-                }
+            //获取订单金额 顺便检查库存
+            $this->getTotalAmount($selected_products, $products);
 
 
-            }
-
-            //生成订单
+            //获取订单流水号
             $order_no = $this->getOrderNo();
 
             /*
@@ -164,10 +156,10 @@ class OrderService
      * @param $product
      * @throws OrderException
      */
-    private function stockInsufficiency($product)
+    private function underStockException($product)
     {
 
-        throw new OrderException($product['name'].'的库存不足!');
+        throw new OrderException($product['name'] . '的库存不足!');
     }
 
 
@@ -183,13 +175,13 @@ class OrderService
         $prefix = date('YmdHis');
 
         // 生成6位随机数与流水号拼接 然后去数据库查询是否存在 不存在则直接return 存在则继续生成
-        // 100 次循环都生成 在数据库里已存在的订单号 应该是不可能的
-        for ($i = 0; $i < 100; $i++) {
+        // 10 次循环都生成 在数据库里已存在的订单号
+        for ($i = 0; $i < 10; $i++) {
 
-            $order_no = $prefix.str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $order_no = $prefix . str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
             // 判断是否已经存在 不存在则返回
-            if ( !$this->orderRepo->orderNotExists($order_no)) {
+            if (!$this->orderRepo->orderNotExists($order_no)) {
 
                 return $order_no;
 
@@ -197,7 +189,7 @@ class OrderService
 
         }
 
-        \Log::warning('100次循环都没法生成不冲突的订单！！！！');
+        \Log::warning('10次循环都没法生成不冲突的订单！！！！');
 
         throw new OrderException('系统错误,请稍后重试!');
 

@@ -57,6 +57,17 @@ class CategoryController extends ApiController
 
     /**
      * @param $id
+     * @param CategoryRepository $categoriesRepo
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function edit($id, CategoryRepository $categoriesRepo)
+    {
+        return $this->responseAsSuccess($categoriesRepo->findCategoryById($id));
+    }
+
+
+    /**
+     * @param $id
      * @param CategoryRequest $request
      * @param CategoryRepository $categoriesRepo
      * @return \Illuminate\Http\JsonResponse

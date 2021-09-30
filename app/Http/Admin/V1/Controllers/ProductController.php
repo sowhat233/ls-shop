@@ -35,7 +35,7 @@ class ProductController extends ApiController
     public function show($id, ProductService $productService)
     {
 
-        $product = $productService->showProduct($id);
+        $product = $productService->show($id);
 
         return $this->responseAsSuccess($product);
     }
@@ -50,7 +50,7 @@ class ProductController extends ApiController
      */
     public function store(ProductRequest $request, ProductService $productService)
     {
-        return $this->responseAsCreated($productService->createProduct($request->only(['product_info', 'product_sku'])), $this->combineMessage("{$this->name}创建"));
+        return $this->responseAsCreated($productService->store($request->only(['product_info', 'product_sku'])), $this->combineMessage("{$this->name}创建"));
     }
 
 
@@ -79,7 +79,7 @@ class ProductController extends ApiController
     public function update($id, ProductRequest $request, ProductService $productService, ProductRepository $productRepo)
     {
 
-        $productService->updateProduct($request->only(['product_info', 'product_sku']),$id);
+        $productService->update($request->only(['product_info', 'product_sku']),$id);
 
         return $this->responseAsSuccess($productRepo->findProductById($id), $this->combineMessage("{$this->name}编辑"));
 
@@ -101,17 +101,17 @@ class ProductController extends ApiController
     }
 
 
-
     /**
      * @param $id
      * @param ProductService $productService
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Http\Admin\V1\Exceptions\ProductException
+     * @throws \Throwable
      */
     public function destroy($id, ProductService $productService)
     {
 
-        $productService->deleteProduct($id);
+        $productService->delete($id);
 
         return $this->responseAsDeleted($this->combineMessage("{$this->name}删除"));
     }

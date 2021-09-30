@@ -28,12 +28,11 @@ class ProductService
      * @throws ProductException
      * @throws \Throwable
      */
-    public function createProduct($params)
+    public function store($params)
     {
 
         $product_info = $params['product_info'];
         $product_sku  = $params['product_sku'];
-
 
         //开启事务
         DB::beginTransaction();
@@ -105,7 +104,7 @@ class ProductService
      * @param $product_id
      * @return mixed
      */
-    public function showProduct($product_id)
+    public function show($product_id)
     {
 
         $data = $this->productRepo->findProductById($product_id, ['*'], ['category', 'sku']);
@@ -394,7 +393,7 @@ class ProductService
      * @throws ProductException
      * @throws \Throwable
      */
-    public function updateProduct($params, $product_id)
+    public function update($params, $product_id)
     {
 
         $product_info = $params['product_info'];
@@ -476,8 +475,9 @@ class ProductService
     /**
      * @param $product_id
      * @throws ProductException
+     * @throws \Throwable
      */
-    public function deleteProduct($product_id)
+    public function delete($product_id)
     {
 
         $product = $this->productRepo->getProductWithSkuById($product_id, ['id'], ['id', 'product_id'])->toArray();
