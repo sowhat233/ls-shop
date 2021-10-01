@@ -20,19 +20,21 @@ class BaseRepository
         $this->model = $model;
     }
 
+
     /**
      * @param $id
      * @param $repository
      * @param $column
      * @param $with
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model
+     * @param array $where
+     * @return mixed
      */
-    public function findOneOrFail($id, $repository, $column, $with)
+    public function findOneOrFail($id, $repository, $column, $with, $where = [])
     {
 
         try {
 
-            return $this->model->with($with)->select($column)->findOrFail($id);
+            return $this->model->where($where)->with($with)->select($column)->findOrFail($id);
 
         } catch (ModelNotFoundException $e) {
 
@@ -147,7 +149,7 @@ class BaseRepository
 
         $result = $this->model->where('id', $id)->delete();
 
-        if ( !$result) {
+        if (!$result) {
 
             throw new CommonException('删除失败!');
         }

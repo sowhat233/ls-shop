@@ -33,7 +33,6 @@ class JWTVerification extends BaseMiddleware
 
         } catch (TokenExpiredException $exception) {
 
-            //token已过期也要抛403吗？此处存疑
             throw new TokenException('token已过期');
 
         }

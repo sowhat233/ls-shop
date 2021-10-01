@@ -5,8 +5,10 @@ namespace App\Http\Wechat\V1\Services;
 
 
 use App\Http\Wechat\V1\Exceptions\OrderException;
+use App\Http\Wechat\V1\Repositories\AddressRepository;
 use App\Http\Wechat\V1\Repositories\OrderRepository;
 use App\Http\Wechat\V1\Repositories\ProductRepository;
+use App\Http\Wechat\V1\Repositories\SkuRepository;
 use DB;
 
 class OrderService
@@ -14,12 +16,20 @@ class OrderService
 
     private $productRepo;
 
+    private $skuRepo;
+
     private $orderRepo;
 
-    public function __construct(ProductRepository $productRepo, OrderRepository $orderRepo)
+    private $addressRepo;
+
+
+    public function __construct(ProductRepository $productRepo, SkuRepository $skuRepo,
+                                OrderRepository $orderRepo, AddressRepository $addressRepo)
     {
         $this->productRepo = $productRepo;
+        $this->skuRepo     = $skuRepo;
         $this->orderRepo   = $orderRepo;
+        $this->addressRepo = $addressRepo;
     }
 
 
@@ -30,13 +40,35 @@ class OrderService
     public function store($params)
     {
 
-        $product_ids = array_column($params['product_list'], 'id');
+        $product_list = $params['product_list'];
+
+        $product_ids = array_column($product_list, 'id');
+
+        $sku_ids = $this->getSkuIdByProductList($product_list);
 
         //根据前台提交的订单里的id获取商品
-        $products = $this->flipProduct($this->productRepo->getProductsByIdsWithSku($product_ids, ['*']));
+        $products = $this->flipProduct($this->productRepo->getProductsByIdsWithSku($product_ids, $sku_ids));
 
-        $this->handleCreateOrder($params['product_list'], $products);
+        $this->handleCreateOrder($params['product_list'], $products, $params['address_id']);
 
+    }
+
+
+    /**
+     * @param $product_list
+     * @return array
+     */
+    private function getSkuIdByProductList($product_list)
+    {
+
+        $sku_ids = [];
+
+        foreach ($product_list as $key => $value) {
+
+            array_merge($sku_ids, array_column($value, 'sku_id'));
+        }
+
+        return $sku_ids;
     }
 
 
@@ -50,9 +82,16 @@ class OrderService
 
         $product_arr = [];
 
-        foreach ($products as $key => $value) {
+        foreach ($products as $key => $item) {
 
-            $product_arr[$value['id']] = $value;
+            $product_arr[$item['id']] = $item;
+
+            //翻转key
+            foreach ($item['sku'] as $k => $sku) {
+
+                $product_arr[$item['id']]['sku'][$sku['id']] = $sku;
+
+            }
 
         }
 
@@ -71,36 +110,75 @@ class OrderService
     public function getTotalAmount($selected_products, $products)
     {
 
-        $total_amount = 0;
+        $total_amount = 0.00;
 
-        foreach ($selected_products as $key => $value) {
+        foreach ($selected_products as $key => $item) {
 
             //直接取下标
-            if (isset($products[$value['id']])) {
+            if (isset($products[$item['id']])) {
 
-                $this_product = $products[$value['id']];
+                $this_product = $products[$item['id']];
 
-                //检查库存 如果订单的库存大于数据库的库存 抛出异常
-                if ($value['amount'] > $this_product['stock']) {
+                //单规格情况
+                if (count($item['sku_list']) === 0) {
 
-                    $this->underStockException($this_product);
+                    //检查库存 如果订单的下单量大于数据库的库存 抛出异常
+                    if ($item['amount'] > $this_product['stock']) {
+
+                        $this->underStockException($this_product);
+                    }
+
+                    //更新失败 说明库存不足 抛出异常
+                    if ($this->productRepo->decreaseStock($item['id'], $item['amount']) <= 0) {
+
+                        $this->underStockException($this_product);
+                    }
+
+                    //计算金额
+                    $total_amount += $this_product['price'] * $item['amount'];
+
+                }//多规格情况
+                else {
+
+                    //检查每一个sku的库存
+                    foreach ($item['sku_list'] as $k => $sku) {
+
+                        if (isset($this_product['sku'][$sku['id']])) {
+
+                            $this_sku = $this_product['sku'][$sku['id']];
+
+                            //如果订单的下单量大于数据库的库存 抛出异常
+                            if ($sku['amount'] > $this_sku['stock']) {
+
+                                $this->underStockException($this_product);
+                            }
+
+                            //更新失败 说明库存不足 抛出异常
+                            if ($this->skuRepo->decreaseStock($item['id'], $item['amount']) <= 0) {
+
+                                $this->underStockException($this_product);
+                            }
+
+                            //计算金额
+                            $total_amount += $this_sku['price'] * $sku['amount'];
+
+                        }
+                        else {
+
+                            $this->productNotFoundException();
+                        }
+
+
+                    }
+
+
                 }
 
-                $status = $this->productRepo->decreaseStock($value['id'], $value['amount']);
-
-                //更新失败 说明库存不足 抛出异常
-                if ($status <= 0) {
-
-                    $this->underStockException($this_product);
-                }
-
-                //计算金额
-                $total_amount += $sku->price * $data['amount'];
 
             }
             else {
 
-                throw new OrderException('有商品不存在或已下架!');
+                $this->productNotFoundException();
             }
 
 
@@ -109,14 +187,24 @@ class OrderService
         return $total_amount;
     }
 
+    /**
+     * @param $address_id
+     * @return false|string
+     */
+    private function getJsonAddress($address_id)
+    {
+        return json_encode($this->addressRepo->findUserAddressById(1, $address_id), true);
+    }
+
 
     /**
      * 检查库存 减库存 生成订单号
      * @param $selected_products
      * @param $products
+     * @param $address_id
      * @throws \Throwable
      */
-    public function handleCreateOrder($selected_products, $products)
+    public function handleCreateOrder($selected_products, $products, $address_id)
     {
 
         //开启事务
@@ -125,18 +213,20 @@ class OrderService
         try {
 
             //获取订单金额 顺便检查库存
-            $this->getTotalAmount($selected_products, $products);
-
+            $total_amount = $this->getTotalAmount($selected_products, $products);
 
             //获取订单流水号
             $order_no = $this->getOrderNo();
 
+            $address = $this->getJsonAddress($address_id);
+
+
             /*
+                $total_amount
                 $order_no
+                $address
                 $user_id
-                $total_price
-                $total_count
-                $address_id
+
 
              */
 
@@ -149,6 +239,16 @@ class OrderService
         }
 
 
+    }
+
+
+    /**
+     * @throws OrderException
+     */
+    private function productNotFoundException()
+    {
+
+        throw new OrderException('有商品不存在或已下架!');
     }
 
 
@@ -181,7 +281,7 @@ class OrderService
             $order_no = $prefix . str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
             // 判断是否已经存在 不存在则返回
-            if (!$this->orderRepo->orderNotExists($order_no)) {
+            if (!$this->orderRepo->orderExists($order_no)) {
 
                 return $order_no;
 

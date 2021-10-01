@@ -23,6 +23,7 @@ class CategoryRepository extends BaseRepository implements NotFoundExceptionInte
         $this->model = $category;
     }
 
+
     /**
      * @return mixed|void
      * @throws CategoryException
@@ -31,6 +32,7 @@ class CategoryRepository extends BaseRepository implements NotFoundExceptionInte
     {
         throw new CategoryException('该分类不存在!', $this->httpNotFound);
     }
+
 
     /**
      * @param array $column

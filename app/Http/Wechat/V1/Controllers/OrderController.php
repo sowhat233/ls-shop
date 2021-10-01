@@ -12,7 +12,7 @@ use App\Http\Wechat\V1\Services\OrderService;
 class OrderController extends ApiController
 {
 
-    private $name = '分类';
+    private $name = '订单';
 
 
     /**

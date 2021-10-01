@@ -12,6 +12,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
 
     protected $model;
 
+
     public function __construct(Product $product)
     {
         $this->model = $product;
@@ -38,16 +39,20 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
 
     /**
      * @param $ids
-     * @param array $column
+     * @param $sku_ids
      * @return mixed
      */
-    public function getProductsByIdsWithSku($ids, $column = ['*'])
+    public function getProductsByIdsWithSku($ids, $sku_ids)
     {
 
         return $this->model->whereIn('id', $ids)
                            ->where($this->scopeStatus())
-                           ->with('sku')
-                           ->select($column)
+                           ->with([
+                               'sku' => function ($query) use ($sku_ids) {
+                                   $query->whereIn('id', $sku_ids);
+                               },
+                           ])
+                           ->select(['id', 'stock', 'price', 'name'])
                            ->get();
 
     }
