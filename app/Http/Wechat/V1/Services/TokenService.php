@@ -33,9 +33,9 @@ class TokenService
         $wechat_result = $this->getWechatResult($code);
 
         //查询数据库 openid不存在就存入数据里 然后拿到对应的uid
-        $uid = $this->userRepo->findUidByOpenId($wechat_result['openid']);
+        $user_id = $this->userRepo->findUidByOpenId($wechat_result['openid']);
 
-        $user_data = $this->transformUserData($wechat_result, $uid);
+        $user_data = $this->transformUserData($wechat_result, $user_id);
 
         //颁发token
         return $this->grantToken($user_data);
@@ -63,7 +63,7 @@ class TokenService
 
             if (array_key_exists('errcode', $result)) {
 
-                $message = 'errcode：'.$result['errcode'].';errmsg：'.$result['errmsg'];
+                $message = 'errcode：' . $result['errcode'] . ';errmsg：' . $result['errmsg'];
 
                 throw new CommonException($message);
 
@@ -78,16 +78,33 @@ class TokenService
 
     /**
      * @param $wechat_data
-     * @param $uid
+     * @param $user_id
      * @return mixed
      */
-    private function transformUserData($wechat_data, $uid)
+    private function transformUserData($wechat_data, $user_id)
     {
 
-        $wechat_data['uid'] = $uid;
+        $wechat_data['user_id'] = $user_id;
 
         return $wechat_data;
 
+    }
+
+
+    /**
+     * 生成token
+     * @return string
+     */
+    public function generateToken()
+    {
+
+        $rand_char = getRandChar(32);
+
+        $timestamp = md5(time());
+
+        $token_salt = config('wechat.token_salt');
+
+        return sha1($rand_char . $timestamp . $token_salt);
     }
 
 
@@ -109,23 +126,6 @@ class TokenService
 
 
     /**
-     * 生成token
-     * @return string
-     */
-    public function generateToken()
-    {
-
-        $rand_char = getRandChar(32);
-
-        $timestamp = md5(time());
-
-        $token_salt = config('wechat.token_salt');
-
-        return sha1($rand_char.$timestamp.$token_salt);
-    }
-
-
-    /**
      * 把token和user_data绑定起来
      * @param $token
      * @param $user_data
@@ -136,69 +136,4 @@ class TokenService
     }
 
 
-    /**
-     * 获取token
-     * @param bool $value
-     * @return mixed
-     * @throws CommonException
-     * @throws TokenException
-     */
-    public function getToken($value = false)
-    {
-
-        $token = $this->getCacheToken();
-
-        if ($token === null) {
-
-            throw new TokenException('token不存在或已过期!');
-        }
-
-
-        if ( !$value) {
-
-            if (array_key_exists($value, $token)) {
-
-                return $token[$value];
-            }
-            else {
-
-                throw new CommonException('获取的token变量不存在!');
-            }
-
-        }
-
-        return $token;
-
-    }
-
-
-    /**
-     * @param bool $header_token
-     * @return mixed
-     */
-    public function getCacheToken($header_token = false)
-    {
-
-        if ( !$header_token) {
-
-            $header_token = Request::header(config('wechat.token_name'));
-        }
-
-        $token = Cache::get($header_token, null);
-
-        return $token;
-
-    }
-
-
-    /**
-     * 删除token
-     * @param $token
-     */
-    public static function deleteToken($token)
-    {
-
-        Cache::forget($token);
-
-    }
 }

@@ -9,7 +9,7 @@ use App\Http\Base\BaseModel;
 class Address extends BaseModel
 {
 
-    protected $table = 'user_address';
+    protected $table = 'address';
 
     public $timestamps = false;
 

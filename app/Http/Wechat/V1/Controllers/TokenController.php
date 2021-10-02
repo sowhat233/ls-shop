@@ -11,6 +11,7 @@ use App\Http\Wechat\V1\Services\TokenService;
 class TokenController extends ApiController
 {
 
+
     /**
      * @param TokenRequest $request
      * @param TokenService $tokenService
@@ -22,7 +23,7 @@ class TokenController extends ApiController
 
         $token = $tokenService->handleToken($request->input('code'));
 
-        return responseJson(transformToken($token, (time()+config('wechat.token_ttl')), config('wechat.token_name')));
+        return responseJson(transformToken($token, (time() + config('wechat.token_ttl')), config('wechat.token_name')));
 
     }
 

@@ -8,6 +8,7 @@ use App\Http\Admin\V1\Exceptions\CategoryException;
 use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Repositories\ProductRepository;
 use DB;
+use Psy\Exception\FatalErrorException;
 
 class CategoryService
 {
@@ -84,13 +85,14 @@ class CategoryService
 
             DB::rollBack();
 
-            if ($e instanceof CategoryException) {
+            if ($e instanceof FatalErrorException) {
 
-                $message = $e->getMessage();
+                $message = '删除失败!';
+
             }
             else {
 
-                $message = '删除失败!';
+                $message = $e->getMessage();
             }
 
             throw new CategoryException($message);
