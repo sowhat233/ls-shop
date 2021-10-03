@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Cache;
 class TokenLogic
 {
 
-
     /**
      * @return mixed
      * @throws CommonException
@@ -35,11 +34,6 @@ class TokenLogic
     {
 
         $token = $this->getCacheToken();
-
-        if ($token === null) {
-
-            throw new TokenException('token不存在或已过期!');
-        }
 
         if (!$value) {
 
@@ -65,7 +59,6 @@ class TokenLogic
      */
     public static function deleteToken($token)
     {
-
         Cache::forget($token);
     }
 
@@ -73,6 +66,7 @@ class TokenLogic
     /**
      * @param bool $header_token
      * @return mixed
+     * @throws TokenException
      */
     public function getCacheToken($header_token = false)
     {
@@ -83,6 +77,11 @@ class TokenLogic
         }
 
         $token = Cache::get($header_token, null);
+
+        if (is_null($token)) {
+
+            throw new TokenException('token不存在或已过期!');
+        }
 
         return $token;
 

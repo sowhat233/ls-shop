@@ -15,6 +15,10 @@ class BaseRepository
     protected $httpNotFound = FoundationResponse::HTTP_NOT_FOUND;
 
 
+    /**
+     * BaseRepository constructor.
+     * @param BaseModel $model
+     */
     public function __construct(BaseModel $model)
     {
         $this->model = $model;

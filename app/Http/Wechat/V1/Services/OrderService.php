@@ -5,6 +5,7 @@ namespace App\Http\Wechat\V1\Services;
 
 
 use App\Enums\OrderEnums;
+use App\Http\Base\BaseException;
 use App\Http\Wechat\V1\Exceptions\OrderException;
 use App\Http\Wechat\V1\Logic\TokenLogic;
 use App\Http\Wechat\V1\Repositories\AddressRepository;
@@ -12,7 +13,7 @@ use App\Http\Wechat\V1\Repositories\OrderRepository;
 use App\Http\Wechat\V1\Repositories\ProductRepository;
 use App\Http\Wechat\V1\Repositories\SkuRepository;
 use DB;
-use Psy\Exception\FatalErrorException;
+
 
 class OrderService
 {
@@ -49,33 +50,15 @@ class OrderService
 
         $product_list = $params['product_list'];
 
-        $product_ids = array_column($product_list, 'id');
+        $product_ids = array_unique(array_column($product_list, 'product_id'));
 
-        $sku_ids = $this->getSkuIdByProductList($product_list);
+        $sku_ids = array_column($product_list, 'sku_id');
 
         //根据前台提交的订单里的id获取商品
         $products = $this->flipProduct($this->productRepo->getProductsByIdsWithSku($product_ids, $sku_ids));
 
         return $this->handleCreateOrder($params, $products);
 
-    }
-
-
-    /**
-     * @param $product_list
-     * @return array
-     */
-    private function getSkuIdByProductList($product_list)
-    {
-
-        $sku_ids = [];
-
-        foreach ($product_list as $key => $value) {
-
-            array_merge($sku_ids, array_column($value, 'sku_id'));
-        }
-
-        return $sku_ids;
     }
 
 
@@ -124,13 +107,38 @@ class OrderService
             //直接取下标
             if (isset($products[$item['product_id']])) {
 
+                //这个this_product 是从数据库中拿出来的数据
                 $this_product = $products[$item['product_id']];
 
-                //单规格情况
-                if (count($item['sku_list']) === 0) {
+                //有sku_id 就是 多规格
+                if (isset($item['sku_id'])) {
+
+                    //判断这个sku是否存在
+                    if (isset($this_product['sku'][$item['sku_id']])) {
+
+                        //这个this_sku 是从数据库中拿出来的数据
+                        $this_sku = $this_product['sku'][$item['sku_id']];
+
+                        //更新失败 说明库存不足 抛出异常
+                        if ($this->skuRepo->decreaseStock($this_sku['id'], $item['amount']) <= 0) {
+
+                            $this->underStockException($this_product);
+                        }
+
+                        //计算金额
+                        $total_amount += $this_sku['price'] * $item['amount'];
+
+                    }
+                    else {
+
+                        $this->productNotFoundException();
+                    }
+
+                }//单规格情况
+                else {
 
                     //更新失败 说明库存不足 抛出异常
-                    if ($this->productRepo->decreaseStock($item['product_id'], $item['amount']) <= 0) {
+                    if ($this->skuRepo->decreaseStock($this_product['id'], $item['amount']) <= 0) {
 
                         $this->underStockException($this_product);
                     }
@@ -138,39 +146,10 @@ class OrderService
                     //计算金额
                     $total_amount += $this_product['price'] * $item['amount'];
 
-                }//多规格情况
-                else {
-
-                    //检查每一个sku的库存
-                    foreach ($item['sku_list'] as $k => $sku) {
-
-                        if (isset($this_product['sku'][$sku['sku_id']])) {
-
-                            $this_sku = $this_product['sku'][$sku['sku_id']];
-
-                            //更新失败 说明库存不足 抛出异常
-                            if ($this->skuRepo->decreaseStock($sku['sku_id'], $item['amount']) <= 0) {
-
-                                $this->underStockException($this_product);
-                            }
-
-                            //计算金额
-                            $total_amount += $this_sku['price'] * $sku['amount'];
-
-                        }
-                        else {
-
-                            $this->productNotFoundException();
-                        }
-
-
-                    }
-
-
                 }
 
 
-            }
+            }//下标不存在 说明商品不存在或已下架
             else {
 
                 $this->productNotFoundException();
@@ -182,13 +161,15 @@ class OrderService
         return $total_amount;
     }
 
+
     /**
      * @param $address_id
+     * @param $user_id
      * @return false|string
      */
-    private function getJsonAddress($address_id)
+    private function getJsonAddress($address_id, $user_id)
     {
-        return json_encode($this->addressRepo->findUserAddressById(1, $address_id), true);
+        return json_encode($this->addressRepo->findUserAddressById($address_id, compact($user_id)), true);
     }
 
 
@@ -203,9 +184,11 @@ class OrderService
     private function getOrderColumnData($params, $products)
     {
 
-        return [
+        $user_id = $this->token->getUserId();
 
-            'user_id'         => $this->token->getUserId(),
+        $order = [
+
+            'user_id'         => $user_id,
 
             //获取订单流水号
             'order_no'        => $this->getOrderNo(),
@@ -214,7 +197,7 @@ class OrderService
             'total_amount'    => $this->getTotalAmount($params['selected_products'], $products),
 
             //json化的地址
-            'address'         => $this->getJsonAddress($params['address_id']),
+            'address'         => $this->getJsonAddress($params['address_id'], $user_id),
 
             //订单备注
             'remark'          => $params['remark'],
@@ -238,9 +221,6 @@ class OrderService
             //订单状态 默认为 正常
             'is_closed'       => OrderEnums::NotClosed,
 
-            //订单是否已评价 默认为 未评价
-            'is_reviewed'     => OrderEnums::NotReviewed,
-
             //订单物流状态 默认为  未发货
             'delivery_status' => OrderEnums::NoShipped,
 
@@ -248,6 +228,7 @@ class OrderService
 
         ];
 
+        return $order;
     }
 
 
@@ -263,31 +244,22 @@ class OrderService
 
         foreach ($products as $key => $item) {
 
-            //单规格情况
-            if (count($item['sku_list']) === 0) {
-
-                $data[]['order_id']   = $order_id;
-                $data[]['product_id'] = $item['product_id'];
-                $data[]['amount']     = $item['amount'];
-                $data[]['price']      = $item['price'];
-
-            }//多规格情况
-            else {
-
-                foreach ($item['sku_list'] as $k => $sku) {
-
-                    $data[]['order_id']   = $order_id;
-                    $data[]['product_id'] = $item['product_id'];
-                    $data[]['sku_id']     = $sku['sku_id'];
-                    $data[]['amount']     = $sku['amount'];
-                    $data[]['price']      = $sku['price'];
-
-                }
+            if (isset($item['sku_id'])) {
+                $data[$key]['sku_id'] = $item['sku_id'];
             }
+
+            $data[$key]['order_id']    = $order_id;
+            $data[$key]['product_id']  = $item['product_id'];
+            $data[$key]['price']       = $item['price'];//单价
+            $data[$key]['amount']      = $item['amount'];//数量
+            $data[$key]['rating']      = 0;//用户评分 默认为0
+            $data[$key]['review']      = '';//用户评价
+            $data[$key]['reviewed_at'] = 0;//评价时间
+
         }
 
-
         return $data;
+
     }
 
 
@@ -308,6 +280,7 @@ class OrderService
             //添加订单数据
             $order = $this->orderRepo->create($this->getOrderColumnData($params, $products));
 
+            //添加订单商品数据
             $this->skuRepo->create($this->getOrderItemColumnData($params['selected_products'], $order->id));
 
             DB::commit();
@@ -318,14 +291,15 @@ class OrderService
 
             DB::rollBack();
 
-            if ($e instanceof FatalErrorException) {
+            if ($e instanceof BaseException) {
 
-                $message = '订单创建失败!';
+                $message = $e->getMessage();
 
             }
             else {
 
-                $message = $e->getMessage();
+                $message = '订单创建失败!';
+
             }
 
             throw new OrderException($message);
@@ -383,7 +357,7 @@ class OrderService
 
         }
 
-        \Log::warning('10次循环都没法生成不冲突的订单！！！！');
+        \Log::warning('10次循环都没法生成不冲突的订单！！！');
 
         throw new OrderException('系统错误,请稍后重试!');
 

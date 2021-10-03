@@ -6,7 +6,7 @@ namespace App\Http\Middleware;
  */
 
 use App\Http\Wechat\V1\Exceptions\TokenException;
-use App\Http\Wechat\V1\Services\TokenService;
+use App\Http\Wechat\V1\Logic\TokenLogic;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
 use Closure;
@@ -15,11 +15,11 @@ use Closure;
 class WechatTokenVerification
 {
 
-    private $tokenService;
+    private $TokenLogic;
 
-    public function __construct(TokenService $tokenService)
+    public function __construct(TokenLogic $tokenLogic)
     {
-        $this->tokenService = $tokenService;
+        $this->TokenLogic = $tokenLogic;
     }
 
 
@@ -28,17 +28,13 @@ class WechatTokenVerification
 
         $header_token = $request->header('access_token');
 
-        if ( !$header_token) {
+        if (!$header_token) {
 
             //抛出422异常
             throw new TokenException('header请求头参数里没有token!', FoundationResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        if ($this->tokenService->getCacheToken($header_token) === null) {
-
-            //抛出401异常
-            throw new TokenException('token不存在或已过期!');
-        }
+        $this->TokenLogic->getCacheToken($header_token);
 
         return $next($request);
     }

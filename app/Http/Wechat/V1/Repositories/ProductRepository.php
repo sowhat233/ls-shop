@@ -13,6 +13,10 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
     protected $model;
 
 
+    /**
+     * ProductRepository constructor.
+     * @param Product $product
+     */
     public function __construct(Product $product)
     {
         $this->model = $product;

@@ -12,7 +12,10 @@ class AddressRepository extends BaseRepository implements NotFoundExceptionInter
 
     protected $model;
 
-
+    /**
+     * AddressRepository constructor.
+     * @param Address $address
+     */
     public function __construct(Address $address)
     {
         $this->model = $address;
@@ -30,13 +33,13 @@ class AddressRepository extends BaseRepository implements NotFoundExceptionInter
 
 
     /**
-     * @param $user_id
      * @param $address_id
+     * @param $where
      * @return mixed
      */
-    public function findUserAddressById($user_id, $address_id)
+    public function findUserAddressById( $address_id,$where)
     {
-        return $this->findOneOrFail($address_id, $this, ['address', 'contact_phone', 'contact_name', 'zip'], [], compact($user_id));
+        return $this->findOneOrFail($address_id, $this, ['address', 'contact_phone', 'contact_name', 'zip'], [], $where);
     }
 
 

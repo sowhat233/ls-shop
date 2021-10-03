@@ -53,7 +53,7 @@ class OrderEnums
     ];
 
 
-    //物流状态文字数组
+    //物流状态
     const NoShipped = 1; //商品 未发货
 
     const Delivered = 2; //商品 已发货
@@ -61,12 +61,12 @@ class OrderEnums
     const Received = 3; //商品 已收货
 
 
-    //物流状态
+    //物流状态文字数组
     const DeliverStatusName = [
 
         self::NoShipped => '未发货',
-        self::Delivered  => '已发货',
-        self::Received   => '已收货',
+        self::Delivered => '已发货',
+        self::Received  => '已收货',
     ];
 
     //退款状态
@@ -81,7 +81,7 @@ class OrderEnums
     const RefundFailed = 4;  //退款失败
 
 
-    //退款状态
+    //退款状态文字数组
     const RefundStatusName = [
 
         self::NotRefund     => '未退款',

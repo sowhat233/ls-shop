@@ -12,6 +12,11 @@ class OrderRepository extends BaseRepository implements NotFoundExceptionInterfa
 
     protected $model;
 
+
+    /**
+     * OrderRepository constructor.
+     * @param Order $order
+     */
     public function __construct(Order $order)
     {
         $this->model = $order;

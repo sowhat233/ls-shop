@@ -7,8 +7,8 @@ namespace App\Http\Admin\V1\Services;
 use App\Http\Admin\V1\Exceptions\CategoryException;
 use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Repositories\ProductRepository;
+use App\Http\Base\BaseException;
 use DB;
-use Psy\Exception\FatalErrorException;
 
 class CategoryService
 {
@@ -23,6 +23,7 @@ class CategoryService
         $this->productRepo  = $productRepository;
     }
 
+
     /**
      * @param $params
      * @return mixed
@@ -35,6 +36,7 @@ class CategoryService
         return $this->categoryRepo->getCategoryPaginate($where);
 
     }
+
 
     /**
      * @param $params
@@ -56,6 +58,7 @@ class CategoryService
         return $where;
     }
 
+
     /**
      * @param $id
      * @throws \Throwable
@@ -71,7 +74,7 @@ class CategoryService
         try {
 
             //如果该分类下面有商品 则不允许删除
-            if ($this->productRepo->getProductIdByCategoryId($id) !== null) {
+            if (!is_null($this->productRepo->getProductIdByCategoryId($id))) {
 
                 throw new CategoryException('该分类下面还有产品 无法删除!');
 
@@ -85,14 +88,14 @@ class CategoryService
 
             DB::rollBack();
 
-            if ($e instanceof FatalErrorException) {
+            if ($e instanceof BaseException) {
 
-                $message = '删除失败!';
+                $message = $e->getMessage();
 
             }
             else {
 
-                $message = $e->getMessage();
+                $message = '删除失败!';
             }
 
             throw new CategoryException($message);

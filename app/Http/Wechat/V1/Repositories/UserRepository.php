@@ -10,6 +10,10 @@ use App\Models\User;
 class UserRepository extends BaseRepository implements NotFoundExceptionInterface
 {
 
+    /**
+     * UserRepository constructor.
+     * @param User $user
+     */
     public function __construct(User $user)
     {
         $this->model = $user;
@@ -20,6 +24,7 @@ class UserRepository extends BaseRepository implements NotFoundExceptionInterfac
     {
         throw new UserException('该用户不存在!', $this->httpNotFound);
     }
+
 
     /**
      * @param $id
@@ -38,13 +43,12 @@ class UserRepository extends BaseRepository implements NotFoundExceptionInterfac
      * @param $openid
      * @return mixed
      */
-
     public function findUidByOpenId($openid)
     {
 
         $uid = $this->model->where('openid', $openid)->value('id');
 
-        if ($uid === null) {
+        if (is_null($uid)) {
 
             $uid = $this->insertGetId(['openid' => $openid]);
 

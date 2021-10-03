@@ -13,6 +13,10 @@ class SkuRepository extends BaseRepository implements NotFoundExceptionInterface
     protected $model;
 
 
+    /**
+     * SkuRepository constructor.
+     * @param Product $product
+     */
     public function __construct(Product $product)
     {
         $this->model = $product;

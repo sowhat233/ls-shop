@@ -127,7 +127,7 @@ class ProductService
         $data['carousels']     = explode(',', $data['carousels']);
         $data['attrs_title']   = array_keys(json_decode($data['spec_items'], true));
 
-        if ($data['sku'] !== null) {
+        if (!is_null($data['sku'])) {
 
             foreach ($data['sku'] as $key => $value) {
 
