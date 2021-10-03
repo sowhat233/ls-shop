@@ -11,9 +11,9 @@
     "php": "^7.2.5|^8.0",
     "fideloper/proxy": "^4.4",
     "fruitcake/laravel-cors": "^2.0",
-    "guzzlehttp/guzzle": "^6.3.1|^7.0.1",
-    "hhxsv5/laravel-s": "~3.7.0",
-    "laravel/framework": "^7.29",
+    "guzzlehttp/guzzle": "^7.0.1",
+    "hhxsv5/laravel-s": "^3.7",
+    "laravel/framework": "~8.0",
     "laravel/tinker": "^2.5",
     "predis/predis": "^1.1",
     "tymon/jwt-auth": "dev-develop",
@@ -22,11 +22,11 @@
   "require-dev": {
     "barryvdh/laravel-ide-helper": "^2.8",
     "doctrine/dbal": " ~2.3",
-    "facade/ignition": "^2.0",
+    "facade/ignition": "^2.3.6",
     "fakerphp/faker": "^1.9.1",
     "mockery/mockery": "^1.3.1",
-    "nunomaduro/collision": "^4.3",
-    "phpunit/phpunit": "^8.5.8|^9.3.3"
+    "nunomaduro/collision": "^5.0",
+    "phpunit/phpunit": "^9.0"
   },
   "config": {
     "optimize-autoloader": true,
@@ -47,8 +47,7 @@
       "database/factories"
     ],
     "files": [
-      "app/Utils/helpers.php",
-      "app/Utils/response.php"
+      "app/Utils/helpers.php"
     ]
   },
   "autoload-dev": {
