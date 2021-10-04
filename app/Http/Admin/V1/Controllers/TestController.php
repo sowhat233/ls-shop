@@ -4,18 +4,13 @@
 namespace App\Http\Admin\V1\Controllers;
 
 
-use Illuminate\Http\Request;
-
 class TestController
 {
 
-    private $test;
 
-
-    public function __construct(Request $request)
+    public function test()
     {
-        $this->test = $request->input('xxx');
+        return 1;
     }
-
 
 }

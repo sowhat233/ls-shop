@@ -6514,7 +6514,7 @@
      *
      * @see \Illuminate\Log\Logger
      */
-        class Log {
+        class Log1 {
                     /**
          * Create a new, on-demand aggregate logger instance.
          *

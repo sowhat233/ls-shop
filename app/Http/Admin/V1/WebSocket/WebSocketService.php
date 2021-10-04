@@ -5,6 +5,7 @@ namespace App\Http\Admin\V1\WebSocket;
 
 
 use Hhxsv5\LaravelS\Swoole\WebSocketHandlerInterface;
+use Illuminate\Support\Facades\Log;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
 use Swoole\WebSocket\Server;
@@ -12,9 +13,9 @@ use Swoole\WebSocket\Server;
 class WebSocketService implements WebSocketHandlerInterface
 {
 
-    // 声明没有参数的构造函数
     public function __construct()
     {
+        // 构造函数即使为空，也不能省略
     }
 
     // public function onHandShake(Request $request, Response $response)
@@ -30,14 +31,23 @@ class WebSocketService implements WebSocketHandlerInterface
         // \Log::info('New WebSocket connection', [$request->fd, request()->all(), session()->getId(), session('xxx'), session(['yyy' => time()])]);
         // 此处抛出的异常会被上层捕获并记录到Swoole日志，开发者需要手动try/catch
         $server->push($request->fd, 'Welcome to LaravelS');
+
+
     }
 
 
     public function onMessage(Server $server, Frame $frame)
     {
-        // \Log::info('Received message', [$frame->fd, $frame->data, $frame->opcode, $frame->finish]);
-        // 此处抛出的异常会被上层捕获并记录到Swoole日志，开发者需要手动try/catch
-        $server->push($frame->fd, date('Y-m-d H:i:s'));
+        // $frame->fd 是客户端 id，$frame->data 是客户端发送的数据
+        Log::info("从 {$frame->fd} 接收到的数据: {$frame->data}");
+
+        foreach ($server->connections as $fd) {
+            if (!$server->isEstablished($fd)) {
+                // 如果连接不可用则忽略
+                continue;
+            }
+            $server->push($fd, $frame->data); // 服务端通过 push 方法向所有客户端广播消息
+        }
     }
 
 
