@@ -5,6 +5,7 @@ namespace App\Http\Admin\V1\WebSocket;
 
 
 use App\Http\Admin\V1\Logic\TokenLogic;
+use App\Http\Admin\V1\Logic\FdLogic;
 use Hhxsv5\LaravelS\Swoole\WebSocketHandlerInterface;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
@@ -13,11 +14,11 @@ use Swoole\WebSocket\Server;
 class WebSocketService implements WebSocketHandlerInterface
 {
 
-    private $wsTable;
+    private $fdLogic;
 
     public function __construct()
     {
-        $this->wsTable = app('swoole')->wsTable;
+        $this->fdLogic = app(FdLogic::class);
     }
 
 
@@ -35,8 +36,7 @@ class WebSocketService implements WebSocketHandlerInterface
 
     public function onClose(Server $server, $fd, $reactorId)
     {
-        //解绑
-        $this->removeWsTable($fd);
+        $this->del($fd);
     }
 
 
@@ -47,13 +47,15 @@ class WebSocketService implements WebSocketHandlerInterface
     private function bindUid($server, $request)
     {
 
-        if ($uid = $this->getUid(request()->input('token'))) {
+        if (!$uid = $this->getUid(request()->input('token'))) {
 
-            $this->setWsTable($uid, $request->fd);
+            //如果$uid返回false 说明token不存在或token不正确 断开连接
+            $server->disconnect($request->fd);
         }
+        else {
 
-        //如果上面的if返回false 说明token不存在或token不正确 断开连接
-        $server->disconnect($request->fd);
+            $this->save($request->fd, $uid);
+        }
 
     }
 
@@ -64,38 +66,27 @@ class WebSocketService implements WebSocketHandlerInterface
      */
     private function getUid($token)
     {
-        return app(TokenLogic::class)->getUidByToken($token);
+        return $token == '' ? false : app(TokenLogic::class)->getUidByToken($token);
     }
 
 
     /**
+     * @param $fd
      * @param $uid
-     * @param $fd
      */
-    private function setWsTable($uid, $fd)
+    private function save($fd, $uid)
     {
-
-        $this->wsTable->set('uid:' . $uid, ['value' => $fd]);// 绑定uid到fd的映射
-        $this->wsTable->set('fd:' . $fd, ['value' => $uid]);// 绑定fd到uid的映射
-
+        //目前不考虑给单人推送消息 所以只需要把fd当做hash的key uid是随手存的。
+        $this->fdLogic->add($fd, $uid);
     }
 
 
     /**
      * @param $fd
      */
-    private function removeWsTable($fd)
+    private function del($fd)
     {
-
-        $uid = $this->wsTable->get('fd:' . $fd);
-
-        if ($uid !== false) {
-            // 解绑uid映射
-            $this->wsTable->del('uid:' . $uid['value']);
-        }
-
-        // 解绑fd映射
-        $this->wsTable->del('fd:' . $fd);
+        $this->fdLogic->del($fd);;
     }
 
 
