@@ -14,7 +14,6 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 class JWTVerification extends BaseMiddleware
 {
 
-
     public function handle($request, Closure $next)
     {
 

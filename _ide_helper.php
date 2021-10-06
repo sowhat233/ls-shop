@@ -14337,7 +14337,7 @@
      *
      *
      */
-        class JWTAuth {
+        class 1JWTAuth {
                     /**
          * Attempt to authenticate the user and return the token.
          *

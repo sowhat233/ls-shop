@@ -147,7 +147,7 @@ return [
     */
 
     'websocket' => [
-        'enable' => true,
+        'enable'  => true,
         'handler' => App\Http\Admin\V1\WebSocket\WebSocketService::class,
     ],
 
@@ -219,7 +219,22 @@ return [
     |
     */
 
-    'swoole_tables' => [],
+    'swoole_tables' => [
+        // 场景：WebSocket中UserId与FD绑定
+        // Key为Table名称，使用时会自动添加Table后缀，避免重名。这里定义名为wsTable的Table
+//        'ws' => [
+//            //Table的最大行数
+//            'size'   => 1024,
+//            // Table的列定义
+//            'column' => [
+//                [
+//                    'name' => 'value',
+//                    'type' => \Swoole\Table::TYPE_INT,
+//                    'size' => 8,
+//                ],
+//            ],
+//        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -286,7 +301,7 @@ return [
         'dispatch_mode'      => env('LARAVELS_DISPATCH_MODE', 2),
         'reactor_num'        => env('LARAVELS_REACTOR_NUM', function_exists('swoole_cpu_num') ? swoole_cpu_num() : 8),
         'worker_num'         => env('LARAVELS_WORKER_NUM', function_exists('swoole_cpu_num') ? swoole_cpu_num() * 4 : 8),
-        //'task_worker_num'    => env('LARAVELS_TASK_WORKER_NUM', function_exists('swoole_cpu_num') ? swoole_cpu_num() * 4 : 8),
+        'task_worker_num'    => env('LARAVELS_TASK_WORKER_NUM', function_exists('swoole_cpu_num') ? swoole_cpu_num() * 4 : 8),
         'task_ipc_mode'      => 1,
         'task_max_request'   => env('LARAVELS_TASK_MAX_REQUEST', 100000),
         'task_tmpdir'        => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',

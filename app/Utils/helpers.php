@@ -1,7 +1,7 @@
 <?php
 
 
-if ( !function_exists('logDebug')) {
+if (!function_exists('logDebug')) {
 
     /**
      * @param $message
@@ -19,7 +19,7 @@ if ( !function_exists('logDebug')) {
 /**
  * 随机生成字符串
  */
-if ( !function_exists('getRandChar')) {
+if (!function_exists('getRandChar')) {
 
     /**
      * @param $length
@@ -31,7 +31,7 @@ if ( !function_exists('getRandChar')) {
         $str = null;
 
         $strPol = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        $max    = strlen($strPol)-1;
+        $max    = strlen($strPol) - 1;
 
         for ($i = 0; $i < $length; $i++) {
 
@@ -47,7 +47,7 @@ if ( !function_exists('getRandChar')) {
 /**
  * 封装CURL
  */
-if ( !function_exists('curlGet')) {
+if (!function_exists('curlGet')) {
 
     /**
      * @param $url
@@ -81,7 +81,7 @@ if ( !function_exists('curlGet')) {
 /**
  * 获取两个字符串之间的字符串
  */
-if ( !function_exists('getStrBetween')) {
+if (!function_exists('getStrBetween')) {
 
     /**
      * @param $input
@@ -91,7 +91,7 @@ if ( !function_exists('getStrBetween')) {
      */
     function getStrBetween($input, $start, $end)
     {
-        return substr($input, strlen($start)+strpos($input, $start), (strlen($input)-strpos($input, $end))*(-1));
+        return substr($input, strlen($start) + strpos($input, $start), (strlen($input) - strpos($input, $end)) * (-1));
     }
 
 }
@@ -99,7 +99,7 @@ if ( !function_exists('getStrBetween')) {
 /**
  * 组装token
  */
-if ( !function_exists('transformToken')) {
+if (!function_exists('transformToken')) {
 
     /**
      * @param $token
@@ -124,7 +124,7 @@ if ( !function_exists('transformToken')) {
 /**
  * 组装微信login地址
  */
-if ( !function_exists('wechatLoginUrl')) {
+if (!function_exists('wechatLoginUrl')) {
 
     function wechatLoginUrl($code)
     {
