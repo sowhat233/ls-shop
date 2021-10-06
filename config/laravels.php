@@ -222,18 +222,18 @@ return [
     'swoole_tables' => [
         // 场景：WebSocket中UserId与FD绑定
         // Key为Table名称，使用时会自动添加Table后缀，避免重名。这里定义名为wsTable的Table
-//        'ws' => [
-//            //Table的最大行数
-//            'size'   => 1024,
-//            // Table的列定义
-//            'column' => [
-//                [
-//                    'name' => 'value',
-//                    'type' => \Swoole\Table::TYPE_INT,
-//                    'size' => 8,
-//                ],
-//            ],
-//        ],
+        //        'ws' => [
+        //            //Table的最大行数
+        //            'size'   => 1024,
+        //            // Table的列定义
+        //            'column' => [
+        //                [
+        //                    'name' => 'value',
+        //                    'type' => \Swoole\Table::TYPE_INT,
+        //                    'size' => 8,
+        //                ],
+        //            ],
+        //        ],
     ],
 
     /*
