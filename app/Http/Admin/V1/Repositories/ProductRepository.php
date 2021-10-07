@@ -96,7 +96,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
      */
     public function getProductIdByCategoryId($category_id)
     {
-        return $this->findValue(['category_id' => $category_id], 'id');
+        return $this->findValue(['category_id' => $category_id]);
     }
 
 

@@ -3,7 +3,7 @@
 
 namespace App\Models;
 
-
+use App\Enums\ProductEnums;
 use App\Http\Base\BaseModel;
 
 class Product extends BaseModel
@@ -16,6 +16,14 @@ class Product extends BaseModel
     protected $guarded = [];
 
 
+    public function scopeStatus()
+    {
+        $where[] = ['status' => ProductEnums::IsLaunched];
+
+        return $where;
+    }
+
+
     public function getCreatedAtAttribute($value)
     {
         return $value ? date("Y-m-d H:i:s", $value) : '';
@@ -24,13 +32,13 @@ class Product extends BaseModel
 
     public function sku()
     {
-        return $this->hasMany(Sku::class, 'product_id', 'id');
+        return $this->hasMany(Sku::class);
     }
 
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category_id', 'id');
+        return $this->belongsTo(Category::class);
     }
 
 

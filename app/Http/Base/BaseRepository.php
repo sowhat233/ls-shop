@@ -49,6 +49,36 @@ class BaseRepository
 
 
     /**
+     * 减库存
+     * @param $id
+     * @param $amount
+     * @return mixed
+     */
+    public function decreaseStock($id, $amount)
+    {
+        return $this->model->where('id', $id)->where('stock', '>=', $amount)->decrement('stock', $amount);
+    }
+
+
+    /**
+     * @param $id
+     * @param $amount
+     * @return mixed
+     * @throws CommonException
+     */
+    public function incrementStock($id, $amount)
+    {
+
+        if ($amount < 0) {
+
+            throw new CommonException('加库存不能小于0');
+        }
+
+        $this->model->where('id', $id)->increment('stock', $amount);
+    }
+
+
+    /**
      * @param array $columns
      * @param string $orderBy
      * @param string $sortBy
@@ -61,33 +91,13 @@ class BaseRepository
 
 
     /**
-     * @param $id
-     * @return mixed
-     */
-    public function find($id)
-    {
-        return $this->model->find($id);
-    }
-
-
-    /**
      * @param $where
      * @param $value
      * @return mixed
      */
-    public function findValue($where, $value)
+    public function findValue($where, $value = 'id')
     {
         return $this->model->where($where)->value($value);
-    }
-
-
-    /**
-     * @param $data
-     * @return mixed
-     */
-    public function findBy($data)
-    {
-        return $this->model->where($data)->get();
     }
 
 

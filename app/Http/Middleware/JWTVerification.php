@@ -14,6 +14,13 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 class JWTVerification extends BaseMiddleware
 {
 
+    /**
+     * @param $request
+     * @param Closure $next
+     * @return mixed
+     * @throws TokenException
+     * @throws \Tymon\JWTAuth\Exceptions\JWTException
+     */
     public function handle($request, Closure $next)
     {
 
@@ -30,7 +37,7 @@ class JWTVerification extends BaseMiddleware
 
             throw new TokenException('您还没有登录');
 
-        } catch (TokenExpiredException $exception) {
+        } catch (TokenExpiredException $e) {
 
             throw new TokenException('token已过期');
 

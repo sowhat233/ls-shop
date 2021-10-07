@@ -27,4 +27,5 @@ class OrderController extends ApiController
         return $this->responseAsSuccess($orderService->store($request->only(['address_id', 'product_list'])), $this->combineMessage("{$this->name}创建"));
 
     }
+
 }

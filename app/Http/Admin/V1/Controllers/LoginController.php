@@ -21,19 +21,14 @@ class LoginController extends ApiController
 
         $credentials = $request->only(['username', 'password']);
 
-        if ( !$token = \Auth::guard('admin')->attempt($credentials)) {
+        if (!$token = \Auth::guard('admin')->attempt($credentials)) {
 
-            throw new TokenException('账号或密码错误',FoundationResponse::HTTP_INTERNAL_SERVER_ERROR);
+            throw new TokenException('账号或密码错误', FoundationResponse::HTTP_INTERNAL_SERVER_ERROR);
 
         }
 
-        $data = [
-            'access_token' => $token,
-            'token_type'   => 'Bearer',
-            'expires_in'   => config('jwt.ttl')*60,//jwt以分钟为单位 这里乘以60 使其变成秒单位
-        ];
-
-        return $this->responseAsSuccess($data, $this->combineMessage("登录"));
+        //jwt以分钟为单位 这里乘以60 使其变成秒单位
+        return $this->responseAsSuccess(transformToken($token, config('jwt.ttl') * 60), $this->combineMessage("登录"));
 
     }
 

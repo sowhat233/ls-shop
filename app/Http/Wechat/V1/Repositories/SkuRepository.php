@@ -33,15 +33,4 @@ class SkuRepository extends BaseRepository implements NotFoundExceptionInterface
     }
 
 
-    /**
-     * 减库存
-     * @param $id
-     * @param $amount
-     * @return mixed
-     */
-    public function decreaseStock($id, $amount)
-    {
-        return $this->where('id', $id)->where('stock', '>=', $amount)->decrement('stock', $amount);
-    }
-
 }

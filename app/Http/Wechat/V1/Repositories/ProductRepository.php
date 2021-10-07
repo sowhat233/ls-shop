@@ -23,21 +23,13 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
     }
 
 
-    public function scopeStatus()
-    {
-        $where[] = ['status' => 1];
-
-        return $where;
-    }
-
-
     /**
      * @return mixed|void
      * @throws ProductException
      */
     public function notFoundException()
     {
-        throw new ProductException('该商品不存在!', $this->httpNotFound);
+        throw new ProductException('该商品不存在或已下架!', $this->httpNotFound);
     }
 
 
@@ -50,7 +42,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
     {
 
         return $this->model->whereIn('id', $ids)
-                           ->where($this->scopeStatus())
+                           ->where($this->model->scopeStatus())
                            ->with([
                                'sku' => function ($query) use ($sku_ids) {
                                    $query->whereIn('id', $sku_ids);
@@ -62,15 +54,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
     }
 
 
-    /**
-     * 减库存
-     * @param $id
-     * @param $amount
-     * @return mixed
-     */
-    public function decreaseStock($id, $amount)
-    {
-        return $this->where('id', $id)->where($this->scopeStatus())->where('stock', '>=', $amount)->decrement('stock', $amount);
-    }
+
+
 
 }

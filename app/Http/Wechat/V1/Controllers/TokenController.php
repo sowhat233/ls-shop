@@ -11,6 +11,8 @@ use App\Http\Wechat\V1\Services\TokenService;
 class TokenController extends ApiController
 {
 
+    private $name = '令牌';
+
 
     /**
      * @param TokenRequest $request
@@ -18,12 +20,12 @@ class TokenController extends ApiController
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Http\Common\CommonException
      */
-    public function getToken(TokenRequest $request, TokenService $tokenService)
+    public function store(TokenRequest $request, TokenService $tokenService)
     {
 
         $token = $tokenService->handleToken($request->input('code'));
 
-        return responseJson(transformToken($token, (time() + config('wechat.token_ttl')), config('wechat.token_name')));
+        return $this->responseAsCreated(transformToken($token, (time() + config('wechat.token_ttl')), $this->combineMessage("{$this->name}创建")));
 
     }
 

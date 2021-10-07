@@ -22,10 +22,11 @@ class WebsocketOrderNotice extends Listener
     public function handle()
     {
 
-        //发送websocket消息给所有在线的后台用户
+        //用户支付订单后,发送websocket消息给所有在线的后台用户
         foreach ($this->fdLogic->list() as $key => $fd) {
-            logDebug('WebsocketOrderNotice--- ' . $fd);
+
             $this->swoole->push($fd, '有新的订单!');
+
         }
 
     }

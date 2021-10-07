@@ -14,7 +14,6 @@ use App\Http\Wechat\V1\Repositories\ProductRepository;
 use App\Http\Wechat\V1\Repositories\SkuRepository;
 use DB;
 
-
 class OrderService
 {
 
@@ -97,7 +96,7 @@ class OrderService
      * @return float|int
      * @throws OrderException
      */
-    public function getTotalAmount($selected_products, $products)
+    private function getTotalAmount($selected_products, $products)
     {
 
         $total_amount = 0.00;
@@ -185,7 +184,7 @@ class OrderService
     {
 
         $user_id = $this->token->getUserId();
-
+        $user_id = 1; //待处理 需要删
         $order = [
 
             'user_id'         => $user_id,
@@ -218,8 +217,8 @@ class OrderService
             //退款单号 默认0
             'refund_no'       => 0,
 
-            //订单状态 默认为 正常
-            'is_closed'       => OrderEnums::NotClosed,
+            //订单状态 默认为 未支付
+            'pay_status'      => OrderEnums::NotPay,
 
             //订单物流状态 默认为  未发货
             'delivery_status' => OrderEnums::NoShipped,
@@ -244,10 +243,7 @@ class OrderService
 
         foreach ($products as $key => $item) {
 
-            if (isset($item['sku_id'])) {
-                $data[$key]['sku_id'] = $item['sku_id'];
-            }
-
+            $data[$key]['sku_id']      = isset($item['sku_id']) ? $item['sku_id'] : 0;
             $data[$key]['order_id']    = $order_id;
             $data[$key]['product_id']  = $item['product_id'];
             $data[$key]['price']       = $item['price'];//单价
@@ -326,7 +322,6 @@ class OrderService
      */
     private function underStockException($product)
     {
-
         throw new OrderException($product['name'] . '的库存不足!');
     }
 

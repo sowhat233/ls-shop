@@ -23,6 +23,12 @@ class WechatTokenVerification
     }
 
 
+    /**
+     * @param Request $request
+     * @param Closure $next
+     * @return mixed
+     * @throws TokenException
+     */
     public function handle(Request $request, Closure $next)
     {
 

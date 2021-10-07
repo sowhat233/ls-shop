@@ -23,17 +23,20 @@ class OrderEnums
     ];
 
 
-    //订单状态
-    const NotClosed = 1; //订单正常
+    //订单支付状态
+    const NotPay = 2; //订单未支付
 
     const Closed = 0; //订单关闭
 
+    const orderPay = 1; //订单已支付
+
 
     //订单状态文字数组
-    const OrderStatusName = [
+    const OrderPayStatusName = [
 
-        self::NotClosed => '订单正常',
-        self::Closed    => '订单关闭',
+        self::NotPay   => '订单未支付',
+        self::orderPay => '订单已支付',
+        self::Closed   => '订单关闭',
 
     ];
 
