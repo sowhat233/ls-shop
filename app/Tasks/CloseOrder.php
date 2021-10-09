@@ -66,6 +66,8 @@ class CloseOrder extends Task
 
         } catch (\Throwable $e) {
 
+            DB::rollBack();
+
             \Log::error(__CLASS__ . '关闭订单并释放库存的task出错 order_id: ' . $this->order->id . "\n报错信息：" . $e->getMessage());
 
         }
