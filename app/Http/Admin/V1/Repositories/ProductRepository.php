@@ -2,8 +2,8 @@
 
 namespace App\Http\Admin\V1\Repositories;
 
-use App\Http\Admin\V1\Exceptions\ProductException;
 use App\Http\Base\BaseRepository;
+use App\Http\Common\CommonException;
 use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\Product;
 
@@ -20,11 +20,11 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
 
     /**
      * @return mixed|void
-     * @throws ProductException
+     * @throws CommonException
      */
     public function notFoundException()
     {
-        throw new ProductException('该商品不存在!', $this->httpNotFound);
+        throw new CommonException('该商品不存在!', $this->httpNotFound);
     }
 
 
@@ -96,7 +96,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
      */
     public function getProductIdByCategoryId($category_id)
     {
-        return $this->findValue(['category_id' => $category_id]);
+        return $this->findValue(compact('category_id'));
     }
 
 

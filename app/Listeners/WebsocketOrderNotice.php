@@ -4,7 +4,13 @@ namespace App\Listeners;
 
 use App\Http\Admin\V1\Logic\FdLogic;
 use Hhxsv5\LaravelS\Swoole\Task\Listener;
+use Swoole\Exception;
 
+/**
+ * 用户支付订单后,发送websocket消息通知所有在线的后台用户
+ * Class WebsocketOrderNotice
+ * @package App\Listeners
+ */
 class WebsocketOrderNotice extends Listener
 {
 
@@ -12,9 +18,12 @@ class WebsocketOrderNotice extends Listener
 
     protected $fdLogic;
 
-    public function __construct(FdLogic $fdLogic)
+    protected $server;
+
+    public function __construct()
     {
-        $this->fdLogic = $fdLogic;
+
+        $this->fdLogic = app(FdLogic::class);
         $this->swoole  = app('swoole');
     }
 
@@ -22,10 +31,18 @@ class WebsocketOrderNotice extends Listener
     public function handle()
     {
 
-        //用户支付订单后,发送websocket消息给所有在线的后台用户
         foreach ($this->fdLogic->list() as $key => $fd) {
 
-            $this->swoole->push($fd, '有新的订单!');
+            if ($this->swoole->isEstablished($fd)) {
+
+                $this->swoole->push($fd, '有新的订单!');
+            }
+            else {
+
+                //删掉存在redis但并未连接的fd
+                $this->fdLogic->del($fd);
+            }
+
 
         }
 

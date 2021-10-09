@@ -12,6 +12,15 @@ use Illuminate\Support\Facades\Cache;
 class TokenLogic
 {
 
+
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+
+
     /**
      * @return mixed
      * @throws CommonException
@@ -73,7 +82,7 @@ class TokenLogic
 
         if (!$header_token) {
 
-            $header_token = Request::header(config('wechat.token_name'));
+            $header_token = $this->request->header(config('wechat.token_name'));
         }
 
         $token = Cache::get($header_token, null);

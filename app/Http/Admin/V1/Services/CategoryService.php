@@ -4,10 +4,10 @@
 namespace App\Http\Admin\V1\Services;
 
 
-use App\Http\Admin\V1\Exceptions\CategoryException;
 use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Repositories\ProductRepository;
 use App\Http\Base\BaseException;
+use App\Http\Common\CommonException;
 use DB;
 
 class CategoryService
@@ -76,7 +76,7 @@ class CategoryService
             //如果该分类下面有商品 则不允许删除
             if (!is_null($this->productRepo->getProductIdByCategoryId($id))) {
 
-                throw new CategoryException('该分类下面还有产品 无法删除!');
+                throw new CommonException('该分类下面还有产品 无法删除!');
 
             }
 
@@ -84,7 +84,7 @@ class CategoryService
 
             DB::commit();
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
             DB::rollBack();
 
@@ -95,10 +95,11 @@ class CategoryService
             }
             else {
 
-                $message = '删除失败!';
+                $message = exceptionMsg('删除失败!', $e);
+
             }
 
-            throw new CategoryException($message);
+            throw new CommonException($message);
         }
 
     }

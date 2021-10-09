@@ -16,9 +16,9 @@ class Product extends BaseModel
     protected $guarded = [];
 
 
-    public function scopeStatus()
+    public function scopeLaunched()
     {
-        $where[] = ['status' => ProductEnums::IsLaunched];
+        $where = ['is_launched' => ProductEnums::IsLaunched];
 
         return $where;
     }

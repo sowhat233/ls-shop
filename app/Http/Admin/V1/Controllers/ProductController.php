@@ -5,7 +5,6 @@ namespace App\Http\Admin\V1\Controllers;
 
 
 use App\Http\Admin\V1\Repositories\ProductRepository;
-use App\Http\Admin\V1\Repositories\CategoryRepository;
 use App\Http\Admin\V1\Requests\ProductRequest;
 use App\Http\Admin\V1\Services\ProductService;
 use App\Http\Controllers\ApiController;
@@ -45,7 +44,7 @@ class ProductController extends ApiController
      * @param ProductRequest $request
      * @param ProductService $productService
      * @return \Illuminate\Http\JsonResponse
-     * @throws \App\Http\Admin\V1\Exceptions\ProductException
+     * @throws \App\Http\Common\CommonException
      * @throws \Throwable
      */
     public function store(ProductRequest $request, ProductService $productService)
@@ -73,13 +72,13 @@ class ProductController extends ApiController
      * @param ProductService $productService
      * @param ProductRepository $productRepo
      * @return \Illuminate\Http\JsonResponse
-     * @throws \App\Http\Admin\V1\Exceptions\ProductException
+     * @throws \App\Http\Common\CommonException
      * @throws \Throwable
      */
     public function update($id, ProductRequest $request, ProductService $productService, ProductRepository $productRepo)
     {
 
-        $productService->update($request->only(['product_info', 'product_sku']),$id);
+        $productService->update($request->only(['product_info', 'product_sku']), $id);
 
         return $this->responseAsSuccess($productRepo->findProductById($id), $this->combineMessage("{$this->name}编辑"));
 
@@ -105,7 +104,7 @@ class ProductController extends ApiController
      * @param $id
      * @param ProductService $productService
      * @return \Illuminate\Http\JsonResponse
-     * @throws \App\Http\Admin\V1\Exceptions\ProductException
+     * @throws \App\Http\Common\CommonException
      * @throws \Throwable
      */
     public function destroy($id, ProductService $productService)

@@ -5,10 +5,12 @@ namespace App\Http\Admin\V1\Services;
 
 
 use App\Enums\ProductEnums;
-use App\Http\Admin\V1\Exceptions\ProductException;
+use App\Http\Base\BaseException;
+use App\Http\Common\CommonException;
 use App\Http\Admin\V1\Repositories\ProductRepository;
 use App\Http\Admin\V1\Repositories\SkuRepository;
 use DB;
+
 
 class ProductService
 {
@@ -25,7 +27,7 @@ class ProductService
     /**
      * @param $params
      * @return mixed
-     * @throws ProductException
+     * @throws CommonException
      * @throws \Throwable
      */
     public function store($params)
@@ -54,11 +56,22 @@ class ProductService
 
             return $product;
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
             DB::rollBack();
 
-            throw new ProductException('添加失败!');
+            if ($e instanceof BaseException) {
+
+                $message = $e->getMessage();
+
+            }
+            else {
+
+                $message = exceptionMsg('添加失败!', $e);
+
+            }
+
+            throw new CommonException($message);
 
         }
 
@@ -389,7 +402,7 @@ class ProductService
     /**
      * @param $params
      * @param $product_id
-     * @throws ProductException
+     * @throws CommonException
      * @throws \Throwable
      */
     public function update($params, $product_id)
@@ -445,11 +458,22 @@ class ProductService
 
             DB::commit();
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
             DB::rollBack();
 
-            throw new ProductException('更新失败!');
+            if ($e instanceof BaseException) {
+
+                $message = $e->getMessage();
+
+            }
+            else {
+
+                $message = exceptionMsg('更新失败!', $e);
+
+            }
+
+            throw new CommonException($message);
 
         }
 
@@ -467,13 +491,13 @@ class ProductService
 
             $this->skuRepo->delete($id);
         }
-        
+
     }
 
 
     /**
      * @param $product_id
-     * @throws ProductException
+     * @throws CommonException
      * @throws \Throwable
      */
     public function delete($product_id)
@@ -493,11 +517,23 @@ class ProductService
 
             DB::commit();
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
             DB::rollBack();
 
-            throw new ProductException('删除失败!');
+            if ($e instanceof BaseException) {
+
+                $message = $e->getMessage();
+
+            }
+            else {
+
+                $message = exceptionMsg('删除失败!', $e);
+
+            }
+
+            throw new CommonException($message);
+
         }
 
     }

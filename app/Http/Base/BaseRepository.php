@@ -3,6 +3,7 @@
 namespace App\Http\Base;
 
 
+use App\Exceptions\InternalException;
 use App\Http\Common\CommonException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
@@ -53,9 +54,15 @@ class BaseRepository
      * @param $id
      * @param $amount
      * @return mixed
+     * @throws CommonException
      */
     public function decreaseStock($id, $amount)
     {
+
+        if ($amount < 0) {
+            throw new CommonException('减库存不能小于0!');
+        }
+
         return $this->model->where('id', $id)->where('stock', '>=', $amount)->decrement('stock', $amount);
     }
 
@@ -71,7 +78,7 @@ class BaseRepository
 
         if ($amount < 0) {
 
-            throw new CommonException('加库存不能小于0');
+            throw new CommonException('加库存不能小于0!');
         }
 
         $this->model->where('id', $id)->increment('stock', $amount);

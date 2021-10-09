@@ -3,7 +3,7 @@
 namespace App\Http\Wechat\V1\Repositories;
 
 use App\Http\Base\BaseRepository;
-use App\Http\Wechat\V1\Exceptions\AddressException;
+use App\Http\Common\CommonException;
 use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\Address;
 
@@ -24,11 +24,11 @@ class AddressRepository extends BaseRepository implements NotFoundExceptionInter
 
     /**
      * @return mixed|void
-     * @throws AddressException
+     * @throws CommonException
      */
     public function notFoundException()
     {
-        throw new AddressException('该地址不存在!', $this->httpNotFound);
+        throw new CommonException('地址不存在!', $this->httpNotFound);
     }
 
 
@@ -37,7 +37,7 @@ class AddressRepository extends BaseRepository implements NotFoundExceptionInter
      * @param $where
      * @return mixed
      */
-    public function findUserAddressById( $address_id,$where)
+    public function findUserAddressById($address_id, $where)
     {
         return $this->findOneOrFail($address_id, $this, ['address', 'contact_phone', 'contact_name', 'zip'], [], $where);
     }

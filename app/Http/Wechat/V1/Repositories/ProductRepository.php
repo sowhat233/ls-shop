@@ -2,7 +2,7 @@
 
 namespace App\Http\Wechat\V1\Repositories;
 
-use App\Http\Wechat\V1\Exceptions\ProductException;
+use App\Http\Common\CommonException;
 use App\Http\Base\BaseRepository;
 use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\Product;
@@ -25,11 +25,11 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
 
     /**
      * @return mixed|void
-     * @throws ProductException
+     * @throws CommonException
      */
     public function notFoundException()
     {
-        throw new ProductException('该商品不存在或已下架!', $this->httpNotFound);
+        throw new CommonException('该商品不存在或已下架!', $this->httpNotFound);
     }
 
 
@@ -42,7 +42,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
     {
 
         return $this->model->whereIn('id', $ids)
-                           ->where($this->model->scopeStatus())
+                           ->where($this->model->scopeLaunched())
                            ->with([
                                'sku' => function ($query) use ($sku_ids) {
                                    $query->whereIn('id', $sku_ids);
@@ -52,9 +52,6 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
                            ->get();
 
     }
-
-
-
 
 
 }

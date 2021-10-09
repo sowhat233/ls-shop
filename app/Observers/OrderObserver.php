@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Order;
-use APP\Tasks\CloseOrder;
+use App\Tasks\CloseOrder;
 use Hhxsv5\LaravelS\Swoole\Task\Task;
 
 class OrderObserver

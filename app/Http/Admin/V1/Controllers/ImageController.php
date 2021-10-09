@@ -17,7 +17,7 @@ class ImageController extends ApiController
      * @param ImageRequest $request
      * @param ImageUploadService $imageUploadService
      * @return \Illuminate\Http\JsonResponse
-     * @throws \App\Http\Admin\V1\Exceptions\ImgException
+     * @throws \App\Http\Common\CommonException
      */
     public function store(ImageRequest $request, ImageUploadService $imageUploadService)
     {

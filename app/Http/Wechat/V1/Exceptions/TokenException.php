@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response as FoundationResponse;
 
 class TokenException extends BaseException
 {
+    
     /**
      * 会抛出403异常
      * TokenException constructor.

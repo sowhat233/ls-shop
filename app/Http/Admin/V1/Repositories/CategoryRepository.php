@@ -2,8 +2,8 @@
 
 namespace App\Http\Admin\V1\Repositories;
 
-use App\Http\Admin\V1\Exceptions\CategoryException;
 use App\Http\Base\BaseRepository;
+use App\Http\Common\CommonException;
 use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\Category;
 
@@ -26,11 +26,11 @@ class CategoryRepository extends BaseRepository implements NotFoundExceptionInte
 
     /**
      * @return mixed|void
-     * @throws CategoryException
+     * @throws CommonException
      */
     public function notFoundException()
     {
-        throw new CategoryException('该分类不存在!', $this->httpNotFound);
+        throw new CommonException('该分类不存在!', $this->httpNotFound);
     }
 
 

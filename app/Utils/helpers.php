@@ -16,6 +16,20 @@ if (!function_exists('logDebug')) {
 
 }
 
+if (!function_exists('exceptionMsg')) {
+
+    /**
+     * @param $message
+     * @param $e
+     * @return mixed
+     */
+    function exceptionMsg($message, $e)
+    {
+        return config('app.debug') ? $e->getMessage() : $message;
+    }
+
+}
+
 /**
  * 随机生成字符串
  */

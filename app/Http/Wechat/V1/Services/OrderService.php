@@ -5,14 +5,17 @@ namespace App\Http\Wechat\V1\Services;
 
 
 use App\Enums\OrderEnums;
+use App\Events\OrderPaid;
 use App\Http\Base\BaseException;
-use App\Http\Wechat\V1\Exceptions\OrderException;
+use App\Http\Common\CommonException;
 use App\Http\Wechat\V1\Logic\TokenLogic;
 use App\Http\Wechat\V1\Repositories\AddressRepository;
+use App\Http\Wechat\V1\Repositories\OrderItemRepository;
 use App\Http\Wechat\V1\Repositories\OrderRepository;
 use App\Http\Wechat\V1\Repositories\ProductRepository;
 use App\Http\Wechat\V1\Repositories\SkuRepository;
 use DB;
+use Hhxsv5\LaravelS\Swoole\Task\Event;
 
 class OrderService
 {
@@ -23,19 +26,23 @@ class OrderService
 
     private $orderRepo;
 
+    private $orderItemRepo;
+
     private $addressRepo;
 
-    private $token;
+    private $tokenLogic;
 
 
     public function __construct(ProductRepository $productRepo, SkuRepository $skuRepo,
-                                OrderRepository $orderRepo, AddressRepository $addressRepo, TokenLogic $token)
+                                OrderRepository $orderRepo, OrderItemRepository $orderItemRepo,
+                                AddressRepository $addressRepo, TokenLogic $token)
     {
-        $this->productRepo = $productRepo;
-        $this->skuRepo     = $skuRepo;
-        $this->orderRepo   = $orderRepo;
-        $this->addressRepo = $addressRepo;
-        $this->token       = $token;
+        $this->productRepo   = $productRepo;
+        $this->skuRepo       = $skuRepo;
+        $this->orderRepo     = $orderRepo;
+        $this->orderItemRepo = $orderItemRepo;
+        $this->addressRepo   = $addressRepo;
+        $this->tokenLogic    = $token;
     }
 
 
@@ -56,8 +63,12 @@ class OrderService
         //根据前台提交的订单里的id获取商品
         $products = $this->flipProduct($this->productRepo->getProductsByIdsWithSku($product_ids, $sku_ids));
 
-        return $this->handleCreateOrder($params, $products);
+        $order = $this->handleCreateOrder($params, $products);
 
+        //发送websocket消息通知所有在线的后台用户 暂时先放这里
+        Event::fire(app(OrderPaid::class));
+
+        return $order;
     }
 
 
@@ -94,7 +105,7 @@ class OrderService
      * @param $selected_products
      * @param $products
      * @return float|int
-     * @throws OrderException
+     * @throws CommonException
      */
     private function getTotalAmount($selected_products, $products)
     {
@@ -126,7 +137,6 @@ class OrderService
 
                         //计算金额
                         $total_amount += $this_sku['price'] * $item['amount'];
-
                     }
                     else {
 
@@ -137,7 +147,7 @@ class OrderService
                 else {
 
                     //更新失败 说明库存不足 抛出异常
-                    if ($this->skuRepo->decreaseStock($this_product['id'], $item['amount']) <= 0) {
+                    if ($this->productRepo->decreaseStock($this_product['id'], $item['amount']) <= 0) {
 
                         $this->underStockException($this_product);
                     }
@@ -176,39 +186,38 @@ class OrderService
      * @param $params
      * @param $products
      * @return array
-     * @throws OrderException
-     * @throws \App\Http\Common\CommonException
+     * @throws CommonException
      * @throws \App\Http\Wechat\V1\Exceptions\TokenException
      */
     private function getOrderColumnData($params, $products)
     {
 
-        $user_id = $this->token->getUserId();
+        $user_id = $this->tokenLogic->getUserId();
         $user_id = 1; //待处理 需要删
-        $order = [
+        $order   = [
 
-            'user_id'         => $user_id,
+            'user_id'        => $user_id,
 
             //获取订单流水号
-            'order_no'        => $this->getOrderNo(),
+            'order_no'       => $this->getOrderNo(),
 
             //获取订单金额 顺便检查库存 减库存
-            'total_amount'    => $this->getTotalAmount($params['selected_products'], $products),
+            'total_amount'   => $this->getTotalAmount($params['product_list'], $products),
 
             //json化的地址
-            'address'         => $this->getJsonAddress($params['address_id'], $user_id),
+            'address'        => $this->getJsonAddress($params['address_id'], $user_id),
 
             //订单备注
-            'remark'          => $params['remark'],
+            'remark'         => is_null($params['remark']) ? '' : $params['remark'],
 
             //支付时间
-            'paid_at'         => 0,
+            'paid_at'        => 0,
 
             // 支付类型 微信支付
-            'paryment_method' => OrderEnums::WeChatPay,
+            'payment_method' => OrderEnums::WeChatPay,
 
             //支付平台订单号
-            'payment_no'      => 0,
+            'payment_no'     => 0,
 
             //退款状态 默认0 未退款
 
@@ -232,21 +241,22 @@ class OrderService
 
 
     /**
+     * @param $selected_products
      * @param $products
      * @param $order_id
      * @return array
      */
-    private function getOrderItemColumnData($products, $order_id)
+    private function getOrderItemColumnData($selected_products, $products, $order_id)
     {
 
         $data = [];
 
-        foreach ($products as $key => $item) {
+        foreach ($selected_products as $key => $item) {
 
             $data[$key]['sku_id']      = isset($item['sku_id']) ? $item['sku_id'] : 0;
             $data[$key]['order_id']    = $order_id;
             $data[$key]['product_id']  = $item['product_id'];
-            $data[$key]['price']       = $item['price'];//单价
+            $data[$key]['price']       = $this->getProductPrice($products, $item);//单价
             $data[$key]['amount']      = $item['amount'];//数量
             $data[$key]['rating']      = 0;//用户评分 默认为0
             $data[$key]['review']      = '';//用户评价
@@ -255,6 +265,29 @@ class OrderService
         }
 
         return $data;
+
+    }
+
+
+    /**
+     * @param $product_list
+     * @param $item
+     * @return mixed
+     */
+    private function getProductPrice($product_list, $item)
+    {
+
+        $this_product = $product_list[$item['product_id']];
+
+        //如果是sku商品
+        if (isset($item['sku_id'])) {
+
+            return $this_product['sku'][$item['sku_id']]['price'];
+        }
+        else {
+
+            return $this_product['price'];
+        }
 
     }
 
@@ -277,13 +310,13 @@ class OrderService
             $order = $this->orderRepo->create($this->getOrderColumnData($params, $products));
 
             //添加订单商品数据
-            $this->skuRepo->create($this->getOrderItemColumnData($params['selected_products'], $order->id));
+            $this->orderItemRepo->insert($this->getOrderItemColumnData($params['product_list'], $products, $order->id));
 
             DB::commit();
 
             return $order;
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
             DB::rollBack();
 
@@ -294,11 +327,11 @@ class OrderService
             }
             else {
 
-                $message = '订单创建失败!';
+                $message = exceptionMsg('订单创建失败!', $e);
 
             }
 
-            throw new OrderException($message);
+            throw new CommonException($message);
 
         }
 
@@ -307,29 +340,29 @@ class OrderService
 
 
     /**
-     * @throws OrderException
+     * @throws CommonException
      */
     private function productNotFoundException()
     {
 
-        throw new OrderException('有商品不存在或已下架!');
+        throw new CommonException('有商品不存在或已下架!');
     }
 
 
     /**
      * @param $product
-     * @throws OrderException
+     * @throws CommonException
      */
     private function underStockException($product)
     {
-        throw new OrderException($product['name'] . '的库存不足!');
+        throw new CommonException($product['name'] . '的库存不足!');
     }
 
 
     /**
      * 生成订单流水号
      * @return string
-     * @throws OrderException
+     * @throws CommonException
      */
     private function getOrderNo()
     {
@@ -354,7 +387,7 @@ class OrderService
 
         \Log::warning('10次循环都没法生成不冲突的订单！！！');
 
-        throw new OrderException('系统错误,请稍后重试!');
+        throw new CommonException('系统错误,请稍后重试!');
 
     }
 

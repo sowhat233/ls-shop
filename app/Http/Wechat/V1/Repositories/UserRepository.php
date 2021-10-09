@@ -2,7 +2,7 @@
 
 namespace App\Http\Wechat\V1\Repositories;
 
-use App\Http\Wechat\V1\Exceptions\UserException;
+use App\Http\Common\CommonException;
 use App\Http\Base\BaseRepository;
 use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\User;
@@ -22,7 +22,7 @@ class UserRepository extends BaseRepository implements NotFoundExceptionInterfac
 
     public function notFoundException()
     {
-        throw new UserException('该用户不存在!', $this->httpNotFound);
+        throw new CommonException('该用户不存在!', $this->httpNotFound);
     }
 
 
@@ -46,7 +46,7 @@ class UserRepository extends BaseRepository implements NotFoundExceptionInterfac
     public function findUidByOpenId($openid)
     {
 
-        $uid = $this->model->where('openid', $openid)->value('id');
+        $uid = $this->model->where(compact('openid'))->value('id');
 
         if (is_null($uid)) {
 

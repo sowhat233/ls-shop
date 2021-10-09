@@ -3,9 +3,9 @@
 namespace App\Http\Wechat\V1\Repositories;
 
 use App\Http\Base\BaseRepository;
-use App\Http\Wechat\V1\Exceptions\SkuException;
+use App\Http\Common\CommonException;
 use App\Interfaces\NotFoundExceptionInterface;
-use App\Models\Product;
+use App\Models\Sku;
 
 class SkuRepository extends BaseRepository implements NotFoundExceptionInterface
 {
@@ -15,21 +15,21 @@ class SkuRepository extends BaseRepository implements NotFoundExceptionInterface
 
     /**
      * SkuRepository constructor.
-     * @param Product $product
+     * @param Sku $sku
      */
-    public function __construct(Product $product)
+    public function __construct(Sku $sku)
     {
-        $this->model = $product;
+        $this->model = $sku;
     }
 
 
     /**
      * @return mixed|void
-     * @throws SkuException
+     * @throws CommonException
      */
     public function notFoundException()
     {
-        throw new SkuException('该sku不存在!', $this->httpNotFound);
+        throw new CommonException('该sku不存在!', $this->httpNotFound);
     }
 
 

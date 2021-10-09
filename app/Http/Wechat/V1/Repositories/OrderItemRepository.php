@@ -2,8 +2,8 @@
 
 namespace App\Http\Wechat\V1\Repositories;
 
-use App\Http\Wechat\V1\Exceptions\ProductException;
 use App\Http\Base\BaseRepository;
+use App\Http\Common\CommonException;
 use App\Interfaces\NotFoundExceptionInterface;
 use App\Models\OrderItem;
 
@@ -25,11 +25,11 @@ class OrderItemRepository extends BaseRepository implements NotFoundExceptionInt
 
     /**
      * @return mixed|void
-     * @throws ProductException
+     * @throws CommonException
      */
     public function notFoundException()
     {
-        throw new ProductException('该订单下的商品不存在!', $this->httpNotFound);
+        throw new CommonException('该订单下的商品不存在!', $this->httpNotFound);
     }
 
 
@@ -40,7 +40,7 @@ class OrderItemRepository extends BaseRepository implements NotFoundExceptionInt
      */
     public function getOrderProductByOrderId($order_id, $select)
     {
-        return $this->model->selecet($select)->get($order_id);
+        return $this->model->select($select)->where(compact('order_id'))->get();
     }
 
 }

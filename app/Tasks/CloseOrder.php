@@ -1,7 +1,7 @@
 <?php
 
 
-namespace APP\Tasks;
+namespace App\Tasks;
 
 use App\Http\Admin\V1\Repositories\ProductRepository;
 use App\Http\Wechat\V1\Repositories\OrderItemRepository;
@@ -33,9 +33,9 @@ class CloseOrder extends Task
     public function __construct($order)
     {
         $this->order        = $order;
-        $this->productRep   = app(OrderRepository::class);
-        $this->skuRep       = app(ProductRepository::class);
-        $this->orderRep     = app(SkuRepository::class);
+        $this->productRep   = app(ProductRepository::class);
+        $this->skuRep       = app(SkuRepository::class);
+        $this->orderRep     = app(OrderRepository::class);
         $this->orderItemRep = app(OrderItemRepository::class);
     }
 
@@ -64,9 +64,9 @@ class CloseOrder extends Task
 
             DB::commit();
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
-            \Log::error(__CLASS__ . '关闭订单并释放库存的task出错 order_id: ' . $this->order->id);
+            \Log::error(__CLASS__ . '关闭订单并释放库存的task出错 order_id: ' . $this->order->id . "\n报错信息：" . $e->getMessage());
 
         }
 
@@ -90,15 +90,15 @@ class CloseOrder extends Task
             $sku_id = $item['sku_id'];
             $amount = $item['amount'];
 
-            //sku商品
-            if ($sku_id === 0) {
-
-                $this->skuRep->incrementStock($sku_id, $amount);
-
-            }//单规格商品
-            else {
+            //单规格商品
+            if ($sku_id == 0) {
 
                 $this->productRep->incrementStock($item['product_id'], $amount);
+
+            } //sku商品
+            else {
+
+                $this->skuRep->incrementStock($sku_id, $amount);
             }
 
         }
