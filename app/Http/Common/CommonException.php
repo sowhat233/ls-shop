@@ -8,8 +8,13 @@ use Symfony\Component\HttpFoundation\Response as FoundationResponse;
 class CommonException extends BaseException
 {
 
-    public function __construct($message = "", $code = FoundationResponse::HTTP_INTERNAL_SERVER_ERROR, $previous = null)
+    public function __construct($message = "", $previous = null, $code = FoundationResponse::HTTP_INTERNAL_SERVER_ERROR)
     {
+
+        if (config('app.debug')) {
+            $message = $previous->getMessage();
+        }
+
         parent::__construct($message, $code, $previous);
     }
 
