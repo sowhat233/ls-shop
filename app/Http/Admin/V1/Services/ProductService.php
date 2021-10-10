@@ -67,11 +67,11 @@ class ProductService
             }
             else {
 
-                $message = exceptionMsg('添加失败!', $e);
+                $message = '添加失败!';
 
             }
 
-            throw new CommonException($message);
+            throw new CommonException($message,$e);
 
         }
 
@@ -469,11 +469,11 @@ class ProductService
             }
             else {
 
-                $message = exceptionMsg('更新失败!', $e);
+                $message = '更新失败!';
 
             }
 
-            throw new CommonException($message);
+            throw new CommonException($message, $e);
 
         }
 
@@ -528,11 +528,11 @@ class ProductService
             }
             else {
 
-                $message = exceptionMsg('删除失败!', $e);
+                $message = '删除失败!';
 
             }
 
-            throw new CommonException($message);
+            throw new CommonException($message, $e);
 
         }
 

@@ -5,8 +5,6 @@ namespace App\Http\Wechat\V1\Services;
 
 use App\Http\Wechat\V1\Repositories\UserRepository;
 use App\Http\Common\CommonException;
-use App\Http\Wechat\V1\Exceptions\TokenException;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class TokenService
@@ -63,7 +61,7 @@ class TokenService
 
             if (array_key_exists('errcode', $result)) {
 
-                $message = 'errcode：' . $result['errcode'] . ';errmsg：' . $result['errmsg'];
+                $message = '调用微信接口异常! errcode：' . $result['errcode'] . ';errmsg：' . $result['errmsg'];
 
                 throw new CommonException($message);
 

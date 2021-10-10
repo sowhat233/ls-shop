@@ -30,7 +30,7 @@ class CategoryRepository extends BaseRepository implements NotFoundExceptionInte
      */
     public function notFoundException()
     {
-        throw new CommonException('该分类不存在!', $this->httpNotFound);
+        throw new CommonException('该分类不存在!', null, $this->httpNotFound);
     }
 
 

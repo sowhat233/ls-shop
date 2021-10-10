@@ -22,7 +22,7 @@ class UserRepository extends BaseRepository implements NotFoundExceptionInterfac
 
     public function notFoundException()
     {
-        throw new CommonException('该用户不存在!', $this->httpNotFound);
+        throw new CommonException('用户不存在!', null, $this->httpNotFound);
     }
 
 

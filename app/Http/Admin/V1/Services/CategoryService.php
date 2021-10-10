@@ -95,11 +95,11 @@ class CategoryService
             }
             else {
 
-                $message = exceptionMsg('删除失败!', $e);
+                $message = '删除失败!';
 
             }
 
-            throw new CommonException($message);
+            throw new CommonException($message, $e);
         }
 
     }

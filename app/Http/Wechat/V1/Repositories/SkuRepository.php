@@ -29,7 +29,7 @@ class SkuRepository extends BaseRepository implements NotFoundExceptionInterface
      */
     public function notFoundException()
     {
-        throw new CommonException('该sku不存在!', $this->httpNotFound);
+        throw new CommonException('该sku不存在!', null, $this->httpNotFound);
     }
 
 

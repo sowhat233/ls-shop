@@ -28,7 +28,7 @@ class AddressRepository extends BaseRepository implements NotFoundExceptionInter
      */
     public function notFoundException()
     {
-        throw new CommonException('地址不存在!', $this->httpNotFound);
+        throw new CommonException('地址不存在!', null, $this->httpNotFound);
     }
 
 

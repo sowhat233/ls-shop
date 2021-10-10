@@ -11,7 +11,7 @@ class CommonException extends BaseException
     public function __construct($message = "", $previous = null, $code = FoundationResponse::HTTP_INTERNAL_SERVER_ERROR)
     {
 
-        if (config('app.debug')) {
+        if (!is_null($previous) && config('app.debug')) {
             $message = $previous->getMessage();
         }
 

@@ -327,11 +327,11 @@ class OrderService
             }
             else {
 
-                $message = exceptionMsg('订单创建失败!', $e);
+                $message = '订单创建失败!';
 
             }
 
-            throw new CommonException($message);
+            throw new CommonException($message, $e);
 
         }
 

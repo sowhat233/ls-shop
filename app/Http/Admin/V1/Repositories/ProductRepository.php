@@ -24,7 +24,7 @@ class ProductRepository extends BaseRepository implements NotFoundExceptionInter
      */
     public function notFoundException()
     {
-        throw new CommonException('该商品不存在!', $this->httpNotFound);
+        throw new CommonException('该商品不存在!', null, $this->httpNotFound);
     }
 
 

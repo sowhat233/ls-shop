@@ -29,7 +29,7 @@ class OrderRepository extends BaseRepository implements NotFoundExceptionInterfa
      */
     public function notFoundException()
     {
-        throw new CommonException('该订单不存在!', $this->httpNotFound);
+        throw new CommonException('该订单不存在!', null, $this->httpNotFound);
     }
 
 
