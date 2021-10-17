@@ -87,7 +87,7 @@ trait  ApiResponse
      */
     public function combineMessage(string $message)
     {
-        return $message.'成功!';
+        return $message . '成功!';
     }
 
 
@@ -118,6 +118,22 @@ trait  ApiResponse
     {
 
         return $this->setCode(FoundationResponse::HTTP_CREATED)
+                    ->setResponseData($message, $data, $expand)
+                    ->responseJson();
+    }
+
+
+    /**
+     * 更新成功  202
+     * @param string $message
+     * @param  $data
+     * @param  $expand
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function responseAsUpdated(string $message, $data = [], $expand = [])
+    {
+
+        return $this->setCode(FoundationResponse::HTTP_ACCEPTED)
                     ->setResponseData($message, $data, $expand)
                     ->responseJson();
     }

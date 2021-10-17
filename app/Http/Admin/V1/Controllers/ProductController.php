@@ -62,7 +62,7 @@ class ProductController extends ApiController
     {
         $product_column = ['id', 'name', 'category_id', 'description', 'detail', 'image', 'carousels', 'stock', 'price', 'cost_price', 'is_multiple_spec'];
         $sku_column     = ['product_id', 'price', 'cost_price', 'stock', 'image', 'attrs'];
-        return $this->responseAsSuccess($productService->handleProductEdit($id, $product_column, $sku_column));
+        return $this->responseAsUpdated($productService->handleProductEdit($id, $product_column, $sku_column));
     }
 
 

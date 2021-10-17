@@ -18,7 +18,6 @@ class WebsocketOrderNotice extends Listener
 
     protected $fdLogic;
 
-    protected $server;
 
     public function __construct()
     {

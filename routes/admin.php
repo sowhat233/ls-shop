@@ -10,6 +10,7 @@ Route::group([], function () {
     Route::post('/login', 'LoginController@store')->name('login.store');
     Route::get('/test', 'TestController@test')->name('test.test');
 
+
 });
 
 

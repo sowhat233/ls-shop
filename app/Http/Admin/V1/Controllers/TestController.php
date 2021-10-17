@@ -15,33 +15,10 @@ use Swoole\Exception;
 class TestController
 {
 
-    protected $swoole;
-
-    protected $fdLogic;
-
-    protected $server;
-
-    protected $productRepo;
-
-    public function __construct(ProductRepository $productRepository)
-    {
-        $this->productRepo = $productRepository;
-        $this->fdLogic     = app(FdLogic::class);
-        $this->swoole      = app('swoole');
-    }
-
 
     public function test()
     {
-
-        try {
-            $a = 1;
-            //添加product数据
-            $product = $this->productRepo->create($a);
-        } catch (\Throwable $e) {
-            $message = 'test';
-            throw new CommonException($message, $e);
-        }
+        return '14.08.d1ddd';
     }
 
 }

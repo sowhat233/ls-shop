@@ -27,21 +27,6 @@ class CategoryController extends ApiController
 
 
     /**
-     * @param $id
-     * @param CategoryRepository $categoriesRepo
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show($id, CategoryRepository $categoriesRepo)
-    {
-
-        $category = $categoriesRepo->findCategoryById($id);
-
-        return $this->responseAsSuccess($category);
-
-    }
-
-
-    /**
      * @param CategoryRequest $request
      * @param CategoryRepository $categoriesRepo
      * @return \Illuminate\Http\JsonResponse
@@ -68,6 +53,20 @@ class CategoryController extends ApiController
 
     /**
      * @param $id
+     * @param CategoryRepository $categoriesRepo
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id, CategoryRepository $categoriesRepo)
+    {
+
+        $category = $categoriesRepo->findCategoryById($id);
+
+        return $this->responseAsSuccess($category);
+
+    }
+
+    /**
+     * @param $id
      * @param CategoryRequest $request
      * @param CategoryRepository $categoriesRepo
      * @return \Illuminate\Http\JsonResponse
@@ -78,7 +77,7 @@ class CategoryController extends ApiController
 
         $categoriesRepo->update($id, $request->only('name', 'description'));
 
-        return $this->responseAsSuccess($categoriesRepo->findCategoryById($id), $this->combineMessage("{$this->name}编辑"));
+        return $this->responseAsUpdated($categoriesRepo->findCategoryById($id), $this->combineMessage("{$this->name}编辑"));
 
     }
 
@@ -105,7 +104,6 @@ class CategoryController extends ApiController
     public function all(CategoryRepository $categoryRepo)
     {
         return $this->responseAsSuccess(['category_list' => $categoryRepo->getCategoryList(['id', 'name'])]);
-
     }
 
 }
