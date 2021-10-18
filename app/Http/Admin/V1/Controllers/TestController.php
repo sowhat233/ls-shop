@@ -14,9 +14,9 @@ class TestController
     public function test()
     {
 
-        $task = new TestTask();
-        Task::deliver($task);
-        return 1;
+//        $task = new TestTask();
+//        Task::deliver($task);
+        return 1231111111111;
 
     }
 

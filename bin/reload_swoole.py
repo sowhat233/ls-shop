@@ -8,7 +8,7 @@ class WatchHandler2(pyinotify.ProcessEvent):
     def __init__(self):
 
         # 执行命令
-        self.cmd = "./laravels reload"
+        self.cmd = "php /var/www/ls-shop/api/bin/laravels reload"
 
         # 需要监听的文件路径
         self.watch_file_path = "/var/www/ls-shop/api/"
@@ -18,16 +18,25 @@ class WatchHandler2(pyinotify.ProcessEvent):
 
     def process_IN_MODIFY(self, event):
 
-        if( self.time<self.getTime() ):
+        path_name = event.pathname
 
-            self.time =self.getTime()
+        #如果是.log或者.xml 则不处理
+        if(path_name.find(".log") != -1 or path_name.find(".xml") != -1):
 
-            os.system(self.cmd)
+            pass
+
+        else:
+
+            if( self.time<self.getTime() ):
+
+                self.time = self.getTime()
+
+                os.system(self.cmd)
 
 
     def getTime(self):
 
-        return int(round(time.time() * 2))
+        return int(time.time())
 
 
 def main():
