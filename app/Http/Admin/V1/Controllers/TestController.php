@@ -3,14 +3,9 @@
 
 namespace App\Http\Admin\V1\Controllers;
 
-use App\Events\OrderPaid;
-use App\Http\Admin\V1\Logic\FdLogic;
-use App\Http\Admin\V1\Repositories\ProductRepository;
-use App\Http\Base\BaseException;
-use App\Http\Common\CommonException;
-use DB;
-use Hhxsv5\LaravelS\Swoole\Task\Event;
-use Swoole\Exception;
+
+use App\Tasks\TestTask;
+use Hhxsv5\LaravelS\Swoole\Task\Task;
 
 class TestController
 {
@@ -18,7 +13,11 @@ class TestController
 
     public function test()
     {
-        return '14.08.d1ddd';
+
+        $task = new TestTask();
+        Task::deliver($task);
+        return 1;
+
     }
 
 }
