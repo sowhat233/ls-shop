@@ -10,7 +10,6 @@ class TestService
 
     public function test($test)
     {
-
         logDebug($test());
     }
 }
