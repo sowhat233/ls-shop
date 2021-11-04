@@ -5,7 +5,6 @@ namespace App\Http\Wechat\V1\Services;
 
 
 use App\Enums\OrderEnums;
-use App\Events\OrderPaid;
 use App\Http\Base\BaseException;
 use App\Http\Common\CommonException;
 use App\Http\Wechat\V1\Logic\TokenLogic;
@@ -15,7 +14,6 @@ use App\Http\Wechat\V1\Repositories\OrderRepository;
 use App\Http\Wechat\V1\Repositories\ProductRepository;
 use App\Http\Wechat\V1\Repositories\SkuRepository;
 use DB;
-use Hhxsv5\LaravelS\Swoole\Task\Event;
 
 class OrderService
 {
@@ -64,9 +62,6 @@ class OrderService
         $products = $this->flipProduct($this->productRepo->getProductsByIdsWithSku($product_ids, $sku_ids));
 
         $order = $this->handleCreateOrder($params, $products);
-
-        //发送websocket消息通知所有在线的后台用户 暂时先放这里
-        Event::fire(app(OrderPaid::class));
 
         return $order;
     }
