@@ -103,12 +103,17 @@ if (!function_exists('transformToken')) {
 
     /**
      * @param $token
-     * @param $expires_in
+     * @param bool $expires_in
      * @param string $token_name
      * @return array
      */
-    function transformToken($token, $expires_in, $token_name = 'access_token')
+    function transformToken($token, $expires_in=false, $token_name = 'access_token')
     {
+
+        if(!$expires_in){
+
+            $expires_in =  time() + config('wechat.token_ttl');
+        }
 
         $data = [
             $token_name  => $token,

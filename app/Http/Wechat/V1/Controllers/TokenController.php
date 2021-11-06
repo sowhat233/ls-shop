@@ -25,7 +25,7 @@ class TokenController extends ApiController
 
         $token = $tokenService->handleToken($request->input('code'));
 
-        return $this->responseAsCreated(transformToken($token, (time() + config('wechat.token_ttl')), $this->combineMessage("{$this->name}创建")));
+        return $this->responseAsCreated(transformToken($token), $this->combineMessage("{$this->name}创建"));
 
     }
 

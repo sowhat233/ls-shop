@@ -15,7 +15,7 @@ class WatchHandler(pyinotify.ProcessEvent):
 
     def __init__(self):
 
-        self.base_path = "/var/www/ls-shop"
+        self.base_path = "/var/www/ls-shop/api"
 
         self.time = self.getTime()
 
@@ -23,7 +23,7 @@ class WatchHandler(pyinotify.ProcessEvent):
         self.cmd = "php " + self.base_path + "/bin/laravels reload"
 
         # 需要监听的文件路径
-        self.watch_file_path = self.base_path + "/api/"
+        self.watch_file_path = self.base_path
 
     def process_IN_MODIFY(self, event):
 

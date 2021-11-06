@@ -9,7 +9,7 @@ class TokenException extends BaseException
 {
     
     /**
-     * 会抛出403异常
+     * 会抛出401异常
      * TokenException constructor.
      * @param string $message
      * @param int $code
