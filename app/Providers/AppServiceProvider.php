@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 
+use App\Http\Validators\PhoneValidator;
 use App\Models\Order;
 use App\Observers\OrderObserver;
 use Illuminate\Support\ServiceProvider;
@@ -32,7 +33,10 @@ class AppServiceProvider extends ServiceProvider
     protected $validators = [
         //单规格商品 进货价 对比 售价
         'cost_price'     => CostPriceValidator::class,
+        //sku规格商品 进货价 对比 售价
         'sku_cost_price' => SkuCostPriceValidator::class,
+        //验证手机号码
+        'phone'          => PhoneValidator::class,
     ];
 
 

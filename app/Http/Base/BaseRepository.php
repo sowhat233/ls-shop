@@ -27,6 +27,19 @@ class BaseRepository
 
 
     /**
+     * @param array $where
+     * @param array $column
+     * @param string $order
+     * @param string $sort
+     * @return mixed
+     */
+    public function first($where = [], $column = ['*'], $order = 'id', $sort = 'desc')
+    {
+        return $this->model->where($where)->order($order, $sort)->select($column)->first();
+    }
+
+
+    /**
      * @param $id
      * @param $repository
      * @param $column
@@ -87,13 +100,13 @@ class BaseRepository
 
     /**
      * @param array $columns
-     * @param string $orderBy
-     * @param string $sortBy
+     * @param string $order
+     * @param string $sort
      * @return mixed
      */
-    public function all($columns = ['*'], $orderBy = 'id', $sortBy = 'asc')
+    public function all($columns = ['*'], $order = 'id', $sort = 'desc')
     {
-        return $this->model->orderBy($orderBy, $sortBy)->get($columns);
+        return $this->model->orderBy($order, $sort)->get($columns);
     }
 
 

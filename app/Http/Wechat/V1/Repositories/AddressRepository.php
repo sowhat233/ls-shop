@@ -33,13 +33,13 @@ class AddressRepository extends BaseRepository implements NotFoundExceptionInter
 
 
     /**
-     * @param $address_id
-     * @param $where
+     * @param $id
+     * @param array $where
      * @return mixed
      */
-    public function findUserAddressById($address_id, $where)
+    public function findAddressById($id, $where = [])
     {
-        return $this->findOneOrFail($address_id, $this, ['address', 'contact_phone', 'contact_name', 'zip'], [], $where);
+        return $this->findOneOrFail($id, $this, ['city', 'address', 'phone', 'nickname'], [], $where);
     }
 
 

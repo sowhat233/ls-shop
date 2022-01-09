@@ -9,6 +9,7 @@ use App\Interfaces\ValidatorInterface;
 /**
  * Class CostPriceValidator
  * @package App\Http\Validators
+ * 判断进价是否大于等于售价
  */
 class CostPriceValidator implements ValidatorInterface
 {
